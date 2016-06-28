@@ -1,0 +1,59 @@
+
+*** These modified files were found in JOE when it aborted on Mon Jun 27 11:56:18 2016
+*** JOE was aborted by UNIX signal 1
+
+*** Fichier '/var/www/html/my_project/.git/COMMIT_EDITMSG'
+AranApp prend vie
+# Veuillez saisir le message de validation pour vos modifications. Les lignes
+# commençant par '#' seront ignorées, et un message vide abandonne la validation.
+# Sur la branche master
+#
+# Validation initiale
+#
+# Modifications qui seront validées :
+#	nouveau fichier : .gitignore
+#	nouveau fichier : README.md
+#	nouveau fichier : app/.htaccess
+#	nouveau fichier : app/AppCache.php
+#	nouveau fichier : app/AppKernel.php
+#	nouveau fichier : app/Resources/views/base.html.twig
+#	nouveau fichier : app/Resources/views/default/index.html.twig
+#	nouveau fichier : app/SymfonyRequirements.php
+#	nouveau fichier : app/autoload.php
+#	nouveau fichier : app/cache/.gitkeep
+#	nouveau fichier : app/check.php
+#	nouveau fichier : app/config/config.yml
+#	nouveau fichier : app/config/config_dev.yml
+#	nouveau fichier : app/config/config_prod.yml
+#	nouveau fichier : app/config/config_test.yml
+#	nouveau fichier : app/config/parameters.yml.dist
+#	nouveau fichier : app/config/routing.yml
+#	nouveau fichier : app/config/routing_dev.yml
+#	nouveau fichier : app/config/security.yml
+#	nouveau fichier : app/config/services.yml
+#	nouveau fichier : app/console
+#	nouveau fichier : app/logs/.gitkeep
+#	nouveau fichier : app/phpunit.xml.dist
+#	nouveau fichier : composer.json
+#	nouveau fichier : composer.lock
+#	nouveau fichier : src/.htaccess
+#	nouveau fichier : src/AppBundle/AppBundle.php
+#	nouveau fichier : src/AppBundle/Controller/AppController.php
+#	nouveau fichier : src/SiteBundle/Controller/DefaultController.php
+#	nouveau fichier : src/SiteBundle/Resources/config/services.yml
+#	nouveau fichier : src/SiteBundle/Resources/views/Default/index.html.twig
+#	nouveau fichier : src/SiteBundle/SiteBundle.php
+#	nouveau fichier : src/SiteBundle/Tests/Controller/DefaultControllerTest.php
+#	nouveau fichier : web/.htaccess
+#	nouveau fichier : web/app.php
+#	nouveau fichier : web/app_dev.php
+#	nouveau fichier : web/apple-touch-icon.png
+#	nouveau fichier : web/config.php
+#	nouveau fichier : web/favicon.ico
+#	nouveau fichier : web/robots.txt
+#
+
+*** Fichier '(Sans nom)'
+/var/www/html/my_project/.git/COMMIT_EDITMSG
+/var/www/html/my_project/.git/COMMIT_EDITMSG
+/var/www/html/my_project/.git/COMMIT_EDITMSG

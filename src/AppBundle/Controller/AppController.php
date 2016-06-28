@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 class AppController
 {
     /**
-     * @Route("/app")
+     * @Route("/sea")
      */
     public function showAction()
     {
