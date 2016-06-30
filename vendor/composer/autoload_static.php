@@ -48,6 +48,10 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
         array (
             'Monolog\\' => 8,
         ),
+        'J' => 
+        array (
+            'JavierEguiluz\\Bundle\\EasyAdminBundle\\' => 37,
+        ),
         'I' => 
         array (
             'Incenteev\\ParameterHandler\\' => 27,
@@ -151,6 +155,10 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
         array (
             0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
         ),
+        'JavierEguiluz\\Bundle\\EasyAdminBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/javiereguiluz/easyadmin-bundle',
+        ),
         'Incenteev\\ParameterHandler\\' => 
         array (
             0 => __DIR__ . '/..' . '/incenteev/composer-parameter-handler',
@@ -188,6 +196,10 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
     public static $prefixesPsr0 = array (
         'T' => 
         array (
+            'Twig_Extensions_' => 
+            array (
+                0 => __DIR__ . '/..' . '/twig/extensions/lib',
+            ),
             'Twig_' => 
             array (
                 0 => __DIR__ . '/..' . '/twig/twig/lib',
@@ -205,6 +217,10 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
             'Psr\\Log\\' => 
             array (
                 0 => __DIR__ . '/..' . '/psr/log',
+            ),
+            'Pagerfanta\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/pagerfanta/pagerfanta/src',
             ),
         ),
         'D' => 

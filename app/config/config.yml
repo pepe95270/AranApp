@@ -69,3 +69,13 @@ fos_user:
     db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
     firewall_name: main
     user_class: AppBundle\Entity\User
+
+easy_admin:
+    site_name: 'AranApp'
+    entities:
+            User:
+                class: AppBundle\Entity\User
+                form:
+                    fields: ['enabled', 'username', 'nom', 'email']
+                list:
+                    fields: ['id', 'enabled', 'nom', 'username', 'email']

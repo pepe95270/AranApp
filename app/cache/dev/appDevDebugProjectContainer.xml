@@ -17,6 +17,7 @@
       <parameter key="SensioFrameworkExtraBundle">Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle</parameter>
       <parameter key="AppBundle">AppBundle\AppBundle</parameter>
       <parameter key="FOSUserBundle">FOS\UserBundle\FOSUserBundle</parameter>
+      <parameter key="EasyAdminBundle">JavierEguiluz\Bundle\EasyAdminBundle\EasyAdminBundle</parameter>
       <parameter key="DebugBundle">Symfony\Bundle\DebugBundle\DebugBundle</parameter>
       <parameter key="WebProfilerBundle">Symfony\Bundle\WebProfilerBundle\WebProfilerBundle</parameter>
       <parameter key="SensioDistributionBundle">Sensio\Bundle\DistributionBundle\SensioDistributionBundle</parameter>
@@ -557,6 +558,69 @@
       <parameter>ResetPassword</parameter>
       <parameter>Default</parameter>
     </parameter>
+    <parameter key="easyadmin.config" type="collection">
+      <parameter key="site_name">AranApp</parameter>
+      <parameter key="entities" type="collection">
+        <parameter key="User" type="collection">
+          <parameter key="class">AppBundle\Entity\User</parameter>
+          <parameter key="form" type="collection">
+            <parameter key="fields" type="collection">
+              <parameter>enabled</parameter>
+              <parameter>username</parameter>
+              <parameter>nom</parameter>
+              <parameter>email</parameter>
+            </parameter>
+          </parameter>
+          <parameter key="list" type="collection">
+            <parameter key="fields" type="collection">
+              <parameter>id</parameter>
+              <parameter>enabled</parameter>
+              <parameter>nom</parameter>
+              <parameter>username</parameter>
+              <parameter>email</parameter>
+            </parameter>
+          </parameter>
+          <parameter key="name">User</parameter>
+        </parameter>
+      </parameter>
+      <parameter key="design" type="collection">
+        <parameter key="assets" type="collection">
+          <parameter key="css" type="collection"/>
+          <parameter key="js" type="collection"/>
+          <parameter key="favicon" type="collection">
+            <parameter key="path">favicon.ico</parameter>
+            <parameter key="mime_type">image/x-icon</parameter>
+          </parameter>
+        </parameter>
+        <parameter key="theme">default</parameter>
+        <parameter key="color_scheme">dark</parameter>
+        <parameter key="brand_color">#205081</parameter>
+        <parameter key="form_theme" type="collection">
+          <parameter>@EasyAdmin/form/bootstrap_3_horizontal_layout.html.twig</parameter>
+        </parameter>
+        <parameter key="menu" type="collection"/>
+      </parameter>
+      <parameter key="formats" type="collection">
+        <parameter key="date">Y-m-d</parameter>
+        <parameter key="time">H:i:s</parameter>
+        <parameter key="datetime">F j, Y H:i</parameter>
+      </parameter>
+      <parameter key="disabled_actions" type="collection"/>
+      <parameter key="list" type="collection">
+        <parameter key="actions" type="collection"/>
+        <parameter key="max_results">15</parameter>
+      </parameter>
+      <parameter key="edit" type="collection">
+        <parameter key="actions" type="collection"/>
+      </parameter>
+      <parameter key="new" type="collection">
+        <parameter key="actions" type="collection"/>
+      </parameter>
+      <parameter key="show" type="collection">
+        <parameter key="actions" type="collection"/>
+      </parameter>
+    </parameter>
+    <parameter key="easyadmin.cache.dir">/var/www/html/my_project/app/cache/dev/easy_admin</parameter>
     <parameter key="web_profiler.controller.profiler.class">Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController</parameter>
     <parameter key="web_profiler.controller.router.class">Symfony\Bundle\WebProfilerBundle\Controller\RouterController</parameter>
     <parameter key="web_profiler.controller.exception.class">Symfony\Bundle\WebProfilerBundle\Controller\ExceptionController</parameter>
@@ -626,6 +690,10 @@
         <parameter>dump</parameter>
         <parameter>@Debug/Profiler/dump.html.twig</parameter>
       </parameter>
+      <parameter key="easyadmin.data_collector" type="collection">
+        <parameter>easyadmin</parameter>
+        <parameter>@EasyAdmin/data_collector/easyadmin.html.twig</parameter>
+      </parameter>
       <parameter key="data_collector.config" type="collection">
         <parameter>config</parameter>
         <parameter>@WebProfiler/Collector/config.html.twig</parameter>
@@ -639,6 +707,12 @@
     <service id="controller_name_converter" class="Symfony\Bundle\FrameworkBundle\Controller\ControllerNameParser" public="false">
       <tag name="monolog.logger" channel="request"/>
       <argument type="service" id="kernel"/>
+    </service>
+    <service id="controller_resolver" class="Symfony\Bundle\FrameworkBundle\Controller\ControllerResolver" public="false">
+      <tag name="monolog.logger" channel="request"/>
+      <argument type="service" id="service_container"/>
+      <argument type="service" id="controller_name_converter"/>
+      <argument type="service" id="monolog.logger.request" on-invalid="ignore"/>
     </service>
     <service id="response_listener" class="Symfony\Component\HttpKernel\EventListener\ResponseListener">
       <tag name="kernel.event_subscriber"/>
@@ -725,6 +799,12 @@
           <service class="Symfony\Bridge\Doctrine\CacheWarmer\ProxyCacheWarmer" public="false">
             <tag name="kernel.cache_warmer"/>
             <argument type="service" id="doctrine"/>
+          </service>
+        </argument>
+        <argument type="service">
+          <service class="JavierEguiluz\Bundle\EasyAdminBundle\Cache\ConfigWarmer" public="false">
+            <tag name="kernel.cache_warmer" priority="-2048"/>
+            <argument type="service" id="easyadmin.config.manager"/>
           </service>
         </argument>
       </argument>
@@ -884,6 +964,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.pt.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.pt.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.pt.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.pt.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.pt.xlf</argument>
           </argument>
           <argument key="ja" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ja.xlf</argument>
@@ -898,6 +980,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ca.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ca.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ca.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.ca.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.ca.xlf</argument>
           </argument>
           <argument key="de" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.de.xlf</argument>
@@ -905,6 +989,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.de.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.de.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.de.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.de.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.de.xlf</argument>
           </argument>
           <argument key="ro" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ro.xlf</argument>
@@ -912,6 +998,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ro.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ro.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ro.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.ro.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.ro.xlf</argument>
           </argument>
           <argument key="lt" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.lt.xlf</argument>
@@ -925,6 +1013,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.tr.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.tr.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.tr.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.tr.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.tr.xlf</argument>
           </argument>
           <argument key="sr_Latn" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sr_Latn.xlf</argument>
@@ -958,6 +1048,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.es.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.es.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.es.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.es.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.es.xlf</argument>
           </argument>
           <argument key="el" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.el.xlf</argument>
@@ -986,6 +1078,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.sl.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.sl.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.sl.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.sl.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.sl.xlf</argument>
           </argument>
           <argument key="fa" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.fa.xlf</argument>
@@ -1020,6 +1114,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.fr.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.fr.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.fr.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.fr.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.fr.xlf</argument>
           </argument>
           <argument key="pl" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.pl.xlf</argument>
@@ -1027,6 +1123,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.pl.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.pl.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.pl.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.pl.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.pl.xlf</argument>
           </argument>
           <argument key="da" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.da.xlf</argument>
@@ -1054,6 +1152,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ru.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ru.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ru.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.ru.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.ru.xlf</argument>
           </argument>
           <argument key="bg" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.bg.xlf</argument>
@@ -1061,6 +1161,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.bg.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.bg.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.bg.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.bg.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.bg.xlf</argument>
           </argument>
           <argument key="it" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.it.xlf</argument>
@@ -1068,6 +1170,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.it.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.it.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.it.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.it.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.it.xlf</argument>
           </argument>
           <argument key="az" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.az.xlf</argument>
@@ -1080,6 +1184,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.cs.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.cs.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.cs.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.cs.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.cs.xlf</argument>
           </argument>
           <argument key="sv" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sv.xlf</argument>
@@ -1087,6 +1193,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.sv.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.sv.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.sv.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.sv.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.sv.xlf</argument>
           </argument>
           <argument key="en" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.en.xlf</argument>
@@ -1094,6 +1202,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.en.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.en.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.en.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.en.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.en.xlf</argument>
           </argument>
           <argument key="mn" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.mn.xlf</argument>
@@ -1109,6 +1219,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.eu.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.eu.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.eu.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.eu.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.eu.xlf</argument>
           </argument>
           <argument key="vi" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.vi.xlf</argument>
@@ -1160,6 +1272,8 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.nl.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.nl.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.nl.yml</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.nl.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.nl.xlf</argument>
           </argument>
           <argument key="zh_TW" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.zh_TW.xlf</argument>
@@ -1489,6 +1603,10 @@
               <argument key="FOS\UserBundle\Form\Type\ChangePasswordFormType">fos_user.change_password.form.type</argument>
               <argument key="fos_user_resetting">fos_user.resetting.form.type</argument>
               <argument key="FOS\UserBundle\Form\Type\ResettingFormType">fos_user.resetting.form.type</argument>
+              <argument key="easyadmin.form.type">easyadmin.form.type</argument>
+              <argument key="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\EasyAdminFormType">easyadmin.form.type</argument>
+              <argument key="easyadmin_autocomplete">easyadmin.form.type.autocomplete</argument>
+              <argument key="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\EasyAdminAutocompleteType">easyadmin.form.type.autocomplete</argument>
             </argument>
             <argument type="collection">
               <argument key="Symfony\Component\Form\Extension\Core\Type\FormType" type="collection">
@@ -1496,6 +1614,7 @@
                 <argument>form.type_extension.form.validator</argument>
                 <argument>form.type_extension.csrf</argument>
                 <argument>form.type_extension.form.data_collector</argument>
+                <argument>easyadmin.form.type.extension</argument>
               </argument>
               <argument key="Symfony\Component\Form\Extension\Core\Type\RepeatedType" type="collection">
                 <argument>form.type_extension.repeated.validator</argument>
@@ -1883,6 +2002,14 @@
       </call>
       <call method="add">
         <argument type="service">
+          <service class="JavierEguiluz\Bundle\EasyAdminBundle\DataCollector\EasyAdminDataCollector" public="false">
+            <tag name="data_collector" template="@EasyAdmin/data_collector/easyadmin.html.twig" id="easyadmin"/>
+            <argument type="service" id="easyadmin.config.manager"/>
+          </service>
+        </argument>
+      </call>
+      <call method="add">
+        <argument type="service">
           <service class="Symfony\Component\HttpKernel\DataCollector\ConfigDataCollector" public="false">
             <tag name="data_collector" template="@WebProfiler/Collector/config.html.twig" id="config" priority="-255"/>
             <call method="setKernel">
@@ -2048,6 +2175,22 @@
         </argument>
         <argument>0</argument>
       </call>
+      <call method="addListenerService">
+        <argument>kernel.controller</argument>
+        <argument type="collection">
+          <argument>easyadmin.listener.controller</argument>
+          <argument>onKernelController</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListenerService">
+        <argument>easy_admin.post_initialize</argument>
+        <argument type="collection">
+          <argument>easyadmin.listener.request_post_initialize</argument>
+          <argument>initializeRequest</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
       <call method="addSubscriberService">
         <argument>response_listener</argument>
         <argument>Symfony\Component\HttpKernel\EventListener\ResponseListener</argument>
@@ -2158,14 +2301,7 @@
       </call>
     </service>
     <service id="debug.controller_resolver" class="Symfony\Component\HttpKernel\Controller\TraceableControllerResolver">
-      <argument type="service">
-        <service class="Symfony\Bundle\FrameworkBundle\Controller\ControllerResolver" public="false">
-          <tag name="monolog.logger" channel="request"/>
-          <argument type="service" id="service_container"/>
-          <argument type="service" id="controller_name_converter"/>
-          <argument type="service" id="monolog.logger.request" on-invalid="ignore"/>
-        </service>
-      </argument>
+      <argument type="service" id="controller_resolver"/>
       <argument type="service" id="debug.stopwatch"/>
     </service>
     <service id="security.context" class="Symfony\Component\Security\Core\SecurityContext">
@@ -2193,7 +2329,7 @@
         </argument>
         <argument type="service">
           <service class="Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider" public="false">
-            <argument>577285e5ce5b69.91719418</argument>
+            <argument>5773ededc79e67.84141527</argument>
           </service>
         </argument>
       </argument>
@@ -2494,7 +2630,7 @@
         <argument type="service">
           <service class="Symfony\Component\Security\Http\Firewall\AnonymousAuthenticationListener" public="false">
             <argument type="service" id="security.token_storage"/>
-            <argument>577285e5ce5b69.91719418</argument>
+            <argument>5773ededc79e67.84141527</argument>
             <argument type="service" id="monolog.logger.security" on-invalid="null"/>
             <argument type="service" id="security.authentication.manager"/>
           </service>
@@ -2755,6 +2891,16 @@
         <argument type="service">
           <service class="Doctrine\Bundle\DoctrineBundle\Twig\DoctrineExtension" public="false">
             <tag name="twig.extension"/>
+          </service>
+        </argument>
+      </call>
+      <call method="addExtension">
+        <argument type="service">
+          <service class="JavierEguiluz\Bundle\EasyAdminBundle\Twig\EasyAdminTwigExtension" public="false">
+            <tag name="twig.extension"/>
+            <argument type="service" id="easyadmin.config.manager"/>
+            <argument type="service" id="property_accessor"/>
+            <argument>true</argument>
           </service>
         </argument>
       </call>
@@ -3191,6 +3337,90 @@
       <argument type="service" id="router"/>
       <argument>86400</argument>
     </service>
+    <service id="easyadmin.cache.manager" class="JavierEguiluz\Bundle\EasyAdminBundle\Cache\CacheManager">
+      <argument>/var/www/html/my_project/app/cache/dev/easy_admin</argument>
+    </service>
+    <service id="easyadmin.config.manager" class="JavierEguiluz\Bundle\EasyAdminBundle\Configuration\ConfigManager">
+      <argument type="service" id="service_container"/>
+    </service>
+    <service id="easyadmin.query_builder" class="JavierEguiluz\Bundle\EasyAdminBundle\Search\QueryBuilder">
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="easyadmin.autocomplete" class="JavierEguiluz\Bundle\EasyAdminBundle\Search\Autocomplete">
+      <argument type="service" id="easyadmin.config.manager"/>
+      <argument type="service">
+        <service class="JavierEguiluz\Bundle\EasyAdminBundle\Search\Finder" public="false">
+          <argument type="service" id="easyadmin.query_builder"/>
+          <argument type="service" id="easyadmin.paginator"/>
+        </service>
+      </argument>
+      <argument type="service" id="property_accessor"/>
+    </service>
+    <service id="easyadmin.paginator" class="JavierEguiluz\Bundle\EasyAdminBundle\Search\Paginator"/>
+    <service id="easyadmin.listener.controller" class="JavierEguiluz\Bundle\EasyAdminBundle\EventListener\ControllerListener">
+      <tag name="kernel.event_listener" event="kernel.controller" method="onKernelController"/>
+      <argument type="service" id="easyadmin.config.manager"/>
+      <argument type="service" id="controller_resolver"/>
+    </service>
+    <service id="easyadmin.listener.request_post_initialize" class="JavierEguiluz\Bundle\EasyAdminBundle\EventListener\RequestPostInitializeListener">
+      <tag name="kernel.event_listener" event="easy_admin.post_initialize" method="initializeRequest"/>
+      <argument type="service" id="doctrine"/>
+      <argument type="service" id="request_stack" on-invalid="null"/>
+    </service>
+    <service id="easyadmin.form.type" class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\EasyAdminFormType">
+      <tag name="form.type"/>
+      <argument type="service" id="easyadmin.config.manager"/>
+      <argument type="collection">
+        <argument key="4" type="service">
+          <service class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\AutocompleteTypeConfigurator" public="false">
+            <tag name="easyadmin.form.type.configurator" priority="30"/>
+          </service>
+        </argument>
+        <argument key="3" type="service">
+          <service class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\CollectionTypeConfigurator" public="false">
+            <tag name="easyadmin.form.type.configurator" priority="20"/>
+          </service>
+        </argument>
+        <argument key="2" type="service">
+          <service class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\CheckboxTypeConfigurator" public="false">
+            <tag name="easyadmin.form.type.configurator" priority="10"/>
+          </service>
+        </argument>
+        <argument key="1" type="service">
+          <service class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\RequiredOptionConfigurator" public="false">
+            <tag name="easyadmin.form.type.configurator" priority="-10"/>
+            <argument type="service">
+              <service class="Symfony\Component\Form\FormTypeGuesserChain" public="false">
+                <argument type="collection">
+                  <argument type="service" id="form.type_guesser.validator"/>
+                  <argument type="service" id="form.type_guesser.doctrine"/>
+                </argument>
+              </service>
+            </argument>
+          </service>
+        </argument>
+        <argument key="0" type="service">
+          <service class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\EntityTypeConfigurator" public="false">
+            <tag name="easyadmin.form.type.configurator" priority="-20"/>
+            <argument type="service">
+              <service class="Symfony\Component\Form\FormTypeGuesserChain" public="false">
+                <argument type="collection">
+                  <argument type="service" id="form.type_guesser.validator"/>
+                  <argument type="service" id="form.type_guesser.doctrine"/>
+                </argument>
+              </service>
+            </argument>
+          </service>
+        </argument>
+      </argument>
+    </service>
+    <service id="easyadmin.form.type.autocomplete" class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\EasyAdminAutocompleteType">
+      <tag name="form.type" alias="easyadmin_autocomplete"/>
+    </service>
+    <service id="easyadmin.form.type.extension" class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Extension\EasyAdminExtension">
+      <tag name="form.type_extension" alias="form" extended_type="Symfony\Component\Form\Extension\Core\Type\FormType" extended-type="Symfony\Component\Form\Extension\Core\Type\FormType"/>
+      <argument type="service" id="request_stack" on-invalid="null"/>
+    </service>
     <service id="data_collector.dump" class="Symfony\Component\HttpKernel\DataCollector\DumpDataCollector">
       <tag name="data_collector" id="dump" template="@Debug/Profiler/dump.html.twig" priority="240"/>
       <argument type="service" id="debug.stopwatch" on-invalid="ignore"/>
@@ -3280,6 +3510,10 @@
         <argument key="data_collector.dump" type="collection">
           <argument>dump</argument>
           <argument>@Debug/Profiler/dump.html.twig</argument>
+        </argument>
+        <argument key="easyadmin.data_collector" type="collection">
+          <argument>easyadmin</argument>
+          <argument>@EasyAdmin/data_collector/easyadmin.html.twig</argument>
         </argument>
         <argument key="data_collector.config" type="collection">
           <argument>config</argument>
@@ -3512,6 +3746,10 @@
       <call method="addPath">
         <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/views</argument>
         <argument>FOSUser</argument>
+      </call>
+      <call method="addPath">
+        <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/views</argument>
+        <argument>EasyAdmin</argument>
       </call>
       <call method="addPath">
         <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/views</argument>

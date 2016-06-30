@@ -46,4 +46,18 @@ class User extends BaseUser
     {
         return $this->nom;
     }
+
+    /**
+     * Set nom
+     *
+     * @param string $nom
+     *
+     * @return User
+     */
+    public function setNom($nom)
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
 }
