@@ -2,11 +2,13 @@ imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
     - { resource: services.yml }
+    - { resource: admin/ }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: fr
+    app.path.product_images: /my_project/web/uploads/images/products/
 
 framework:
     #esi:             ~
@@ -34,6 +36,8 @@ framework:
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
+    form_themes:
+        - 'form_div_layout.html.twig'
 
 # Doctrine Configuration
 doctrine:
@@ -69,13 +73,16 @@ fos_user:
     db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
     firewall_name: main
     user_class: AppBundle\Entity\User
+    registration:
+        form:
+            type: AppBundle\Form\RegistrationType
+    profile:
+        form:
+            type: AppBundle\Form\ProfileType
 
-easy_admin:
-    site_name: 'AranApp'
-    entities:
-            User:
-                class: AppBundle\Entity\User
-                form:
-                    fields: ['enabled', 'username', 'nom', 'email']
-                list:
-                    fields: ['id', 'enabled', 'nom', 'username', 'email']
+vich_uploader:
+    db_driver: orm
+    mappings:
+        product_images:
+            uri_prefix: %app.path.product_images%
+            upload_destination: %kernel.root_dir%/../web/uploads/images/products

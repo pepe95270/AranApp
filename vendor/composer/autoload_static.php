@@ -21,6 +21,15 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
     );
 
     public static $prefixLengthsPsr4 = array (
+        'Z' => 
+        array (
+            'Zend\\EventManager\\' => 18,
+            'Zend\\Code\\' => 10,
+        ),
+        'V' => 
+        array (
+            'Vich\\UploaderBundle\\' => 20,
+        ),
         'S' => 
         array (
             'Symfony\\Polyfill\\Util\\' => 22,
@@ -54,6 +63,8 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
         ),
         'I' => 
         array (
+            'Ivory\\JsonBuilder\\' => 18,
+            'Ivory\\CKEditorBundle\\' => 21,
             'Incenteev\\ParameterHandler\\' => 27,
         ),
         'F' => 
@@ -71,6 +82,18 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
     );
 
     public static $prefixDirsPsr4 = array (
+        'Zend\\EventManager\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/zendframework/zend-eventmanager/src',
+        ),
+        'Zend\\Code\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/zendframework/zend-code/src',
+        ),
+        'Vich\\UploaderBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/vich/uploader-bundle',
+        ),
         'Symfony\\Polyfill\\Util\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-util',
@@ -159,6 +182,14 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
         array (
             0 => __DIR__ . '/..' . '/javiereguiluz/easyadmin-bundle',
         ),
+        'Ivory\\JsonBuilder\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/egeloen/json-builder/src',
+        ),
+        'Ivory\\CKEditorBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/egeloen/ckeditor-bundle',
+        ),
         'Incenteev\\ParameterHandler\\' => 
         array (
             0 => __DIR__ . '/..' . '/incenteev/composer-parameter-handler',
@@ -218,9 +249,20 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
             array (
                 0 => __DIR__ . '/..' . '/psr/log',
             ),
+            'ProxyManager\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/ocramius/proxy-manager/src',
+            ),
             'Pagerfanta\\' => 
             array (
                 0 => __DIR__ . '/..' . '/pagerfanta/pagerfanta/src',
+            ),
+        ),
+        'M' => 
+        array (
+            'Metadata\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/jms/metadata/src',
             ),
         ),
         'D' => 

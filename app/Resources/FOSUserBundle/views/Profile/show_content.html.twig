@@ -1,0 +1,60 @@
+{% trans_default_domain 'FOSUserBundle' %}
+<a href="{{ path('fos_user_profile_edit') }}">Editer votre profil</a>
+<div class="fos_user_user_show">
+    <div style="float: right;"> <img src="http://2.ip-164-132-99.eu/my_project/web/uploads/images/products/{{ user.image }}" height="auto" width="300"> </div>
+    <p><strong>{{ 'profile.show.username'|trans }}:</strong> {{ user.username }}</p>
+    <p><strong>{{ 'profile.show.email'|trans }}:</strong> {{ user.email }}</p>
+    <p><strong>Poste:</strong> {{ user.poste }}</p>
+    <p><strong>Nom:</strong> {{ user.name }}</p>
+    <p><strong>Nom de jeune fille:</strong> {{ user.nomjeunefille }}</p>
+    <p><strong>Prenom:</strong> {{ user.prenom }}</p>
+    <p><strong>Adresse:</strong> {{ user.adresse }}</p>
+    <p><strong>Code Postal:</strong> {{ user.codepostal }}</p>
+    <p><strong>Ville:</strong> {{ user.ville }}</p>
+    <p><strong>Téléphone fixe:</strong> {{ user.telfixe }}</p>
+    <p><strong>Téléphone portable:</strong> {{ user.telport }}</p>
+    <p><strong>Date de naissance:</strong> {{ user.datenaissance|date("d/m/Y") }}</p>
+    <p><strong>Lieux et département de naissance:</strong> {{ user.lieunaissance }}</p>
+    <p><strong>Numéro de sécurité social:</strong> {{ user.secu }}</p>
+    <p><strong>Nationalité:</strong> {{ user.nationalite }}</p>
+    <p><strong>Numéro de carte de séjour:</strong> {{ user.cartedesejour }}</p>
+    <p><strong>Délivrée par la préfecture de:</strong> {{ user.delivreepar }}</p>
+    <p><strong>Date d'expiration:</strong> {{ user.dateexpiration|date("d/m/Y") }}</p>
+    <p><strong>Situation Familiale:</strong> {{ user.situation }}</p>
+    <p><strong>Bénéficiaire de l’obligation d’emploi selon l’article L. 5212-13 du Code du travail:</strong> {% if user.obligationemploi=="1" %}Oui{% else %}Non{% endif %}</p>
+    <p><strong>Langues parlées (+niveau entre parenthèse):</strong></p>
+    {% for desc in user.tags %}
+        <p><strong>&nbsp&nbsp&nbsp-</strong> {{ desc }}</p>
+    {% endfor %}
+    <p><strong>Niveau d'étude:</strong> {{ user.niveauetude }}</p>
+    <p><strong>Permis de conduire:</strong> {% if user.permis=="1" %}Oui{% else %}Non{% endif %}</p>
+    <p><strong>Voiture:</strong> {% if user.voiture=="1" %}Oui{% else %}Non{% endif %}</p>
+    <p><strong>Date d'obtention:</strong> {{ user.dateobtention|date("d/m/Y") }}</p>
+    <p><strong>Préfecture:</strong> {{ user.prefecture }}</p>
+    <p><strong>Taille (cm):</strong> {{ user.taille }}</p>
+    <p><strong>Taille jupe/pantalon:</strong> {{ user.taillejupe }}</p>
+    <p><strong> de poitrine:</strong> {{ user.tourpoitrine }}</p>
+    <p><strong>Taille de veste:</strong> {{ user.tailleveste }}</p>
+    <p><strong>Pointure chaussures:</strong> {{ user.pointure }}</p>
+    <p><strong>Couleur de cheveux:</strong> {{ user.couleurcheveux }}</p>
+    <p><strong>Couleur des yeux:</strong> {{ user.couleuryeux }}</p>
+    <p><strong>Expérience d'hôte(sse):</strong> {% if user.experiencehote=="1" %}Oui{% else %}Non{% endif %}</p>
+    <p><strong>Laquelle:</strong> {{ user.experiencehotedetail }}</p>
+    <p><strong>Bar:</strong> {% if user.bar=="1" %}Oui{% else %}Non{% endif %}</p>
+    <p><strong>Animation:</strong> {% if user.animation=="1" %}Oui{% else %}Non{% endif %}</p>
+    <p><strong>Passage de micros:</strong> {% if user.micro=="1" %}Oui{% else %}Non{% endif %}</p>
+    <p><strong>Vente:</strong> {% if user.vente=="1" %}Oui{% else %}Non{% endif %}</p>
+    <p><strong>Service assiette / plateau:</strong> {% if user.service=="1" %}Oui{% else %}Non{% endif %}</p>
+    <p><strong>Distribution prospectus:</strong> {% if user.distribution=="1" %}Oui{% else %}Non{% endif %}</p>
+    <p><strong>Traduction:</strong> {% if user.traduction=="1" %}Oui{% else %}Non{% endif %}</p>
+    <p><strong>Saisie informatique:</strong> {% if user.saisie=="1" %}Oui{% else %}Non{% endif %}</p>
+    <p><strong>Comment avez-vous connu notre agence ?:</strong> {{ user.commentconnuagence }}</p>
+    <p><strong>Disponibilité:</strong> {{ user.disponibilite }}</p>
+    <p><strong>En semaine (précisez les jours et horaires):</strong> {{ user.dispojourshoraires }}</p>
+    <p><strong>Ville dans lesquelles vous pouvez être hébergée en France:</strong></p>
+    {% for desc in user.villehebergement %}
+        <p><strong>&nbsp&nbsp&nbsp-</strong> {{ desc }}</p>
+    {% endfor %}
+    <p><strong>Personne à prévenir en cas d'accident:</strong> {{ user.personneaprevenir }}</p>
+    <p><strong>Adresse et téléphone:</strong> {{ user.adressetelaccident }}</p>
+</div>

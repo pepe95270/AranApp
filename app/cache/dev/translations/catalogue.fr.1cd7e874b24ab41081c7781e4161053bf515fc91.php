@@ -230,6 +230,11 @@ L\'équipe.
     'label.form.empty_value' => 'Aucun(e)',
     '__name__label__' => '__name__label__',
   ),
+  'VichUploaderBundle' => 
+  array (
+    'download' => 'Télécharger',
+    'form.label.delete' => 'Supprimer ?',
+  ),
 ));
 
 $catalogueEn = new MessageCatalogue('en', array (
@@ -460,6 +465,11 @@ the Team.
     'action.list' => 'Back to listing',
     'label.form.empty_value' => 'None',
     '__name__label__' => '__name__label__',
+  ),
+  'VichUploaderBundle' => 
+  array (
+    'download' => 'Download',
+    'form.label.delete' => 'Delete?',
   ),
 ));
 $catalogue->addFallbackCatalogue($catalogueEn);

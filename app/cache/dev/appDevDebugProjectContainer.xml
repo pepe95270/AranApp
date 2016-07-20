@@ -18,6 +18,8 @@
       <parameter key="AppBundle">AppBundle\AppBundle</parameter>
       <parameter key="FOSUserBundle">FOS\UserBundle\FOSUserBundle</parameter>
       <parameter key="EasyAdminBundle">JavierEguiluz\Bundle\EasyAdminBundle\EasyAdminBundle</parameter>
+      <parameter key="VichUploaderBundle">Vich\UploaderBundle\VichUploaderBundle</parameter>
+      <parameter key="IvoryCKEditorBundle">Ivory\CKEditorBundle\IvoryCKEditorBundle</parameter>
       <parameter key="DebugBundle">Symfony\Bundle\DebugBundle\DebugBundle</parameter>
       <parameter key="WebProfilerBundle">Symfony\Bundle\WebProfilerBundle\WebProfilerBundle</parameter>
       <parameter key="SensioDistributionBundle">Sensio\Bundle\DistributionBundle\SensioDistributionBundle</parameter>
@@ -36,6 +38,7 @@
     <parameter key="mailer_password">null</parameter>
     <parameter key="secret">c3c84700f24f9408850eb70cc2b1df14496b7f2f</parameter>
     <parameter key="locale">fr</parameter>
+    <parameter key="app.path.product_images">/my_project/web/uploads/images/products/</parameter>
     <parameter key="controller_resolver.class">Symfony\Bundle\FrameworkBundle\Controller\ControllerResolver</parameter>
     <parameter key="controller_name_converter.class">Symfony\Bundle\FrameworkBundle\Controller\ControllerNameParser</parameter>
     <parameter key="response_listener.class">Symfony\Component\HttpKernel\EventListener\ResponseListener</parameter>
@@ -302,6 +305,7 @@
     <parameter key="twig.controller.preview_error.class">Symfony\Bundle\TwigBundle\Controller\PreviewErrorController</parameter>
     <parameter key="twig.exception_listener.controller">twig.controller.exception:showAction</parameter>
     <parameter key="twig.form.resources" type="collection">
+      <parameter>IvoryCKEditorBundle:Form:ckeditor_widget.html.twig</parameter>
       <parameter>form_div_layout.html.twig</parameter>
     </parameter>
     <parameter key="monolog.logger.class">Symfony\Bridge\Monolog\Logger</parameter>
@@ -526,7 +530,7 @@
     <parameter key="fos_user.firewall_name">main</parameter>
     <parameter key="fos_user.model_manager_name">null</parameter>
     <parameter key="fos_user.model.user.class">AppBundle\Entity\User</parameter>
-    <parameter key="fos_user.profile.form.type">FOS\UserBundle\Form\Type\ProfileFormType</parameter>
+    <parameter key="fos_user.profile.form.type">AppBundle\Form\ProfileType</parameter>
     <parameter key="fos_user.profile.form.name">fos_user_profile_form</parameter>
     <parameter key="fos_user.profile.form.validation_groups" type="collection">
       <parameter>Profile</parameter>
@@ -536,7 +540,7 @@
       <parameter key="webmaster@example.com">webmaster</parameter>
     </parameter>
     <parameter key="fos_user.registration.confirmation.enabled">false</parameter>
-    <parameter key="fos_user.registration.form.type">FOS\UserBundle\Form\Type\RegistrationFormType</parameter>
+    <parameter key="fos_user.registration.form.type">AppBundle\Form\RegistrationType</parameter>
     <parameter key="fos_user.registration.form.name">fos_user_registration_form</parameter>
     <parameter key="fos_user.registration.form.validation_groups" type="collection">
       <parameter>Registration</parameter>
@@ -560,45 +564,515 @@
     </parameter>
     <parameter key="easyadmin.config" type="collection">
       <parameter key="site_name">AranApp</parameter>
-      <parameter key="entities" type="collection">
-        <parameter key="User" type="collection">
-          <parameter key="class">AppBundle\Entity\User</parameter>
-          <parameter key="form" type="collection">
-            <parameter key="fields" type="collection">
-              <parameter>enabled</parameter>
-              <parameter>username</parameter>
-              <parameter>nom</parameter>
-              <parameter>email</parameter>
-            </parameter>
-          </parameter>
-          <parameter key="list" type="collection">
-            <parameter key="fields" type="collection">
-              <parameter>id</parameter>
-              <parameter>enabled</parameter>
-              <parameter>nom</parameter>
-              <parameter>username</parameter>
-              <parameter>email</parameter>
-            </parameter>
-          </parameter>
-          <parameter key="name">User</parameter>
-        </parameter>
-      </parameter>
       <parameter key="design" type="collection">
+        <parameter key="form_theme" type="collection">
+          <parameter>@EasyAdmin/form/bootstrap_3_layout.html.twig</parameter>
+        </parameter>
+        <parameter key="color_scheme">dark</parameter>
         <parameter key="assets" type="collection">
-          <parameter key="css" type="collection"/>
+          <parameter key="css" type="collection">
+            <parameter>/bundles/app/stylesheets/demo.css</parameter>
+          </parameter>
           <parameter key="js" type="collection"/>
           <parameter key="favicon" type="collection">
             <parameter key="path">favicon.ico</parameter>
             <parameter key="mime_type">image/x-icon</parameter>
           </parameter>
         </parameter>
-        <parameter key="theme">default</parameter>
-        <parameter key="color_scheme">dark</parameter>
-        <parameter key="brand_color">#205081</parameter>
-        <parameter key="form_theme" type="collection">
-          <parameter>@EasyAdmin/form/bootstrap_3_horizontal_layout.html.twig</parameter>
+        <parameter key="menu" type="collection">
+          <parameter type="collection">
+            <parameter key="label">Menu Gestion</parameter>
+            <parameter key="icon">th-list</parameter>
+            <parameter key="children" type="collection">
+              <parameter type="collection">
+                <parameter key="entity">User</parameter>
+                <parameter key="icon">female</parameter>
+                <parameter key="label">Hôtesse</parameter>
+                <parameter key="params" type="collection">
+                  <parameter key="sortField">createdAt</parameter>
+                </parameter>
+                <parameter key="default">true</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="entity">Evenement</parameter>
+                <parameter key="icon">calendar</parameter>
+                <parameter key="label">Événement</parameter>
+              </parameter>
+            </parameter>
+          </parameter>
+          <parameter type="collection">
+            <parameter key="label">Créé par Pierre Flamant</parameter>
+          </parameter>
         </parameter>
-        <parameter key="menu" type="collection"/>
+        <parameter key="theme">default</parameter>
+        <parameter key="brand_color">#205081</parameter>
+      </parameter>
+      <parameter key="entities" type="collection">
+        <parameter key="Evenement" type="collection">
+          <parameter key="class">AppBundle\Entity\Evenement</parameter>
+          <parameter key="label">Événement</parameter>
+          <parameter key="list" type="collection">
+            <parameter key="title">%entity_label%</parameter>
+            <parameter key="actions" type="collection">
+              <parameter type="collection">
+                <parameter key="name">show</parameter>
+                <parameter key="label"></parameter>
+                <parameter key="icon">search</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="name">edit</parameter>
+                <parameter key="label"></parameter>
+                <parameter key="icon">edit</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="name">delete</parameter>
+                <parameter key="label"></parameter>
+                <parameter key="icon">trash</parameter>
+              </parameter>
+            </parameter>
+            <parameter key="fields" type="collection">
+              <parameter>id</parameter>
+              <parameter type="collection">
+                <parameter key="property">name</parameter>
+                <parameter key="label">Nom</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">parent</parameter>
+                <parameter key="label">Evenement parent</parameter>
+              </parameter>
+              <parameter>users</parameter>
+            </parameter>
+          </parameter>
+          <parameter key="show" type="collection">
+            <parameter key="fields" type="collection">
+              <parameter>id</parameter>
+              <parameter type="collection">
+                <parameter key="property">name</parameter>
+                <parameter key="label">Nom</parameter>
+                <parameter key="css_class">large</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">parent</parameter>
+                <parameter key="label">Evenement parent</parameter>
+              </parameter>
+              <parameter>users</parameter>
+            </parameter>
+          </parameter>
+          <parameter key="form" type="collection">
+            <parameter key="fields" type="collection">
+              <parameter type="collection">
+                <parameter key="property">name</parameter>
+                <parameter key="label">Nom</parameter>
+                <parameter key="css_class">col-sm-12 large</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">parent</parameter>
+                <parameter key="label">Evenement parent</parameter>
+                <parameter key="type">easyadmin_autocomplete</parameter>
+              </parameter>
+            </parameter>
+          </parameter>
+          <parameter key="name">Evenement</parameter>
+        </parameter>
+        <parameter key="User" type="collection">
+          <parameter key="class">AppBundle\Entity\User</parameter>
+          <parameter key="label">Hôtesse</parameter>
+          <parameter key="list" type="collection">
+            <parameter key="title">%entity_label%</parameter>
+            <parameter key="actions" type="collection">
+              <parameter type="collection">
+                <parameter key="name">show</parameter>
+                <parameter key="label"></parameter>
+                <parameter key="icon">search</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="name">edit</parameter>
+                <parameter key="label"></parameter>
+                <parameter key="icon">edit</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="name">delete</parameter>
+                <parameter key="label"></parameter>
+                <parameter key="icon">trash</parameter>
+              </parameter>
+            </parameter>
+            <parameter key="fields" type="collection">
+              <parameter type="collection">
+                <parameter key="property">enabled</parameter>
+                <parameter key="label">Avis</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">image</parameter>
+                <parameter key="type">image</parameter>
+                <parameter key="label">Photo</parameter>
+                <parameter key="base_path">/my_project/web/uploads/images/products/</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">name</parameter>
+                <parameter key="label">Nom</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">prenom</parameter>
+                <parameter key="label">Prenom</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">ville</parameter>
+                <parameter key="label">Ville</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">telport</parameter>
+                <parameter key="label">Portable</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">permis</parameter>
+                <parameter key="label">Permis</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">voiture</parameter>
+                <parameter key="label">Voiture</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">createdAt</parameter>
+                <parameter key="format">j / M / Y</parameter>
+                <parameter key="label">Crée le</parameter>
+              </parameter>
+            </parameter>
+          </parameter>
+          <parameter key="show" type="collection">
+            <parameter key="fields" type="collection">
+              <parameter type="collection">
+                <parameter key="property">enabled</parameter>
+                <parameter key="label">Avis</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">image</parameter>
+                <parameter key="type">image</parameter>
+                <parameter key="label">Photo</parameter>
+                <parameter key="base_path">/my_project/web/uploads/images/products/</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">name</parameter>
+                <parameter key="label">Nom</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">prenom</parameter>
+                <parameter key="label">Prenom</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">ville</parameter>
+                <parameter key="label">Ville</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">permis</parameter>
+                <parameter key="label">Permis</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">voiture</parameter>
+                <parameter key="label">Voiture</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">createdAt</parameter>
+                <parameter key="format">j / M / Y</parameter>
+                <parameter key="label">Crée le</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">name</parameter>
+                <parameter key="css_class">large</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">image</parameter>
+                <parameter key="type">image</parameter>
+                <parameter key="base_path">/my_project/web/uploads/images/products/</parameter>
+              </parameter>
+              <parameter>evenements</parameter>
+              <parameter>tags</parameter>
+            </parameter>
+          </parameter>
+          <parameter key="form" type="collection">
+            <parameter key="fields" type="collection">
+              <parameter type="collection">
+                <parameter key="property">poste</parameter>
+                <parameter key="label">Poste recherché</parameter>
+                <parameter key="type">choice</parameter>
+                <parameter key="type_options" type="collection">
+                  <parameter key="choices" type="collection">
+                    <parameter key="Evenementiel">Evenementiel</parameter>
+                    <parameter key="CDI">CDI</parameter>
+                  </parameter>
+                </parameter>
+                <parameter key="css_class">col-sm-8</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">imageFile</parameter>
+                <parameter key="label">Photo</parameter>
+                <parameter key="type">Vich\UploaderBundle\Form\Type\VichImageType</parameter>
+                <parameter key="css_class">col-sm-4</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">name</parameter>
+                <parameter key="label">Nom</parameter>
+                <parameter key="css_class">col-sm-5</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">nomjeunefille</parameter>
+                <parameter key="label">Nom de jeune fille</parameter>
+                <parameter key="css_class">col-sm-4</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">prenom</parameter>
+                <parameter key="label">Prenom</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">adresse</parameter>
+                <parameter key="label">Adresse</parameter>
+                <parameter key="css_class">col-sm-7</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">codepostal</parameter>
+                <parameter key="label">Code Postal</parameter>
+                <parameter key="css_class">col-sm-2</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">ville</parameter>
+                <parameter key="label">Ville</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">email</parameter>
+                <parameter key="label">Adresse E-mail</parameter>
+                <parameter key="css_class">col-sm-6</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">telfixe</parameter>
+                <parameter key="label">Téléphone fixe</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">telport</parameter>
+                <parameter key="label">Téléphone portable</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">datenaissance</parameter>
+                <parameter key="label">Date de naissance</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">lieunaissance</parameter>
+                <parameter key="label">Lieux et département de naissance</parameter>
+                <parameter key="css_class">col-sm-9</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">secu</parameter>
+                <parameter key="label">Numéro de sécurité social</parameter>
+                <parameter key="css_class">col-sm-6</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">nationalite</parameter>
+                <parameter key="label">Nationalité</parameter>
+                <parameter key="css_class">col-sm-6</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">cartedesejour</parameter>
+                <parameter key="label">Numéro de carte de séjour</parameter>
+                <parameter key="css_class">col-sm-5</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">delivreepar</parameter>
+                <parameter key="label">Délivrée par la préfecture de</parameter>
+                <parameter key="css_class">col-sm-4</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">dateexpiration</parameter>
+                <parameter key="label">Date d'expiration</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">situation</parameter>
+                <parameter key="label">Situation Familiale</parameter>
+                <parameter key="type">choice</parameter>
+                <parameter key="type_options" type="collection">
+                  <parameter key="choices" type="collection">
+                    <parameter key="Célibataire">Célibataire</parameter>
+                    <parameter key="Marié(e)">Marié(e)</parameter>
+                    <parameter key="Concubin(e)">Concubin(e)</parameter>
+                  </parameter>
+                </parameter>
+                <parameter key="css_class">col-sm-4</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">obligationemploi</parameter>
+                <parameter key="label">Cocher cette case si vous êtes bénéficiaire de l’obligation d’emploi selon l’article L. 5212-13 du Code du travail</parameter>
+                <parameter key="css_class">col-sm-8</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">tags</parameter>
+                <parameter key="help">Cliquer sur "Ajouter un nouvel élément" pour ajouter une langue</parameter>
+                <parameter key="label">Langues parlées (+niveau entre parenthèse)</parameter>
+                <parameter key="css_class">col-sm-12</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">niveauetude</parameter>
+                <parameter key="label">Niveau d'étude</parameter>
+                <parameter key="css_class">col-sm-12</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">permis</parameter>
+                <parameter key="label">Permis de conduire</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">voiture</parameter>
+                <parameter key="label">Voiture</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">dateobtention</parameter>
+                <parameter key="label">Date d'obtention</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">prefecture</parameter>
+                <parameter key="label">Préfecture</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">taille</parameter>
+                <parameter key="label">Taille (cm)</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">taillejupe</parameter>
+                <parameter key="label">Taille jupe/pantalon</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">tourpoitrine</parameter>
+                <parameter key="label">Tour de poitrine</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">tailleveste</parameter>
+                <parameter key="label">Taille de veste</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">pointure</parameter>
+                <parameter key="label">Pointure chaussures</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">couleurcheveux</parameter>
+                <parameter key="label">Couleur de cheveux</parameter>
+                <parameter key="css_class">col-sm-4</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">couleuryeux</parameter>
+                <parameter key="label">Couleur des yeux</parameter>
+                <parameter key="css_class">col-sm-4</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">experiencehote</parameter>
+                <parameter key="label">Cocher la case si vous avez déjà eu une expérience d'hôte(sse)</parameter>
+                <parameter key="css_class">col-sm-5</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">experiencehotedetail</parameter>
+                <parameter key="label">Si oui, laquelle</parameter>
+                <parameter key="type">Ivory\CKEditorBundle\Form\Type\CKEditorType</parameter>
+                <parameter key="css_class">col-sm-7</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">bar</parameter>
+                <parameter key="label">Bar</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">animation</parameter>
+                <parameter key="label">Animation</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">micro</parameter>
+                <parameter key="label">Passage de micros</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">vente</parameter>
+                <parameter key="label">Vente</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">service</parameter>
+                <parameter key="label">Service assiette / plateau</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">distribution</parameter>
+                <parameter key="label">Distribution prospectus</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">traduction</parameter>
+                <parameter key="label">Traduction</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">saisie</parameter>
+                <parameter key="label">Saisie informatique</parameter>
+                <parameter key="css_class">col-sm-3</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">commentconnuagence</parameter>
+                <parameter key="label">Comment avez-vous connu notre agence ?</parameter>
+                <parameter key="css_class">col-sm-12</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">disponibilite</parameter>
+                <parameter key="label">Disponibilité</parameter>
+                <parameter key="type">choice</parameter>
+                <parameter key="type_options" type="collection">
+                  <parameter key="choices" type="collection">
+                    <parameter key="Totale">Totale</parameter>
+                    <parameter key="Soirs">Soirs</parameter>
+                    <parameter key="Week-end">Week-end</parameter>
+                    <parameter key="Journée">Journée</parameter>
+                  </parameter>
+                </parameter>
+                <parameter key="css_class">col-sm-4</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">dispojourshoraires</parameter>
+                <parameter key="label">En semaine (précisez les jours et horaires)</parameter>
+                <parameter key="type">Ivory\CKEditorBundle\Form\Type\CKEditorType</parameter>
+                <parameter key="css_class">col-sm-8</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">villehebergement</parameter>
+                <parameter key="help">Cliquer sur "Ajouter un nouvel élément" pour ajouter une ville</parameter>
+                <parameter key="label">Ville dans lesquelles vous pouvez être hébergée en France</parameter>
+                <parameter key="css_class">col-sm-12</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">personneaprevenir</parameter>
+                <parameter key="label">Personne à prévenir en cas d'accident</parameter>
+                <parameter key="css_class">col-sm-6</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">adressetelaccident</parameter>
+                <parameter key="label">Adresse et téléphone</parameter>
+                <parameter key="css_class">col-sm-6</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">evenements</parameter>
+                <parameter key="css_class">col-sm-12</parameter>
+                <parameter key="type">easyadmin_autocomplete</parameter>
+              </parameter>
+            </parameter>
+          </parameter>
+          <parameter key="name">User</parameter>
+        </parameter>
       </parameter>
       <parameter key="formats" type="collection">
         <parameter key="date">Y-m-d</parameter>
@@ -621,6 +1095,23 @@
       </parameter>
     </parameter>
     <parameter key="easyadmin.cache.dir">/var/www/html/my_project/app/cache/dev/easy_admin</parameter>
+    <parameter key="vich_uploader.default_filename_attribute_suffix">_name</parameter>
+    <parameter key="vich_uploader.mappings" type="collection">
+      <parameter key="product_images" type="collection">
+        <parameter key="uri_prefix">/my_project/web/uploads/images/products/</parameter>
+        <parameter key="upload_destination">/var/www/html/my_project/app/../web/uploads/images/products</parameter>
+        <parameter key="namer" type="collection">
+          <parameter key="service">null</parameter>
+          <parameter key="options">null</parameter>
+        </parameter>
+        <parameter key="directory_namer">null</parameter>
+        <parameter key="delete_on_remove">true</parameter>
+        <parameter key="delete_on_update">true</parameter>
+        <parameter key="inject_on_load">false</parameter>
+        <parameter key="db_driver">orm</parameter>
+      </parameter>
+    </parameter>
+    <parameter key="vich_uploader.file_injector.class">Vich\UploaderBundle\Injector\FileInjector</parameter>
     <parameter key="web_profiler.controller.profiler.class">Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController</parameter>
     <parameter key="web_profiler.controller.router.class">Symfony\Bundle\WebProfilerBundle\Controller\RouterController</parameter>
     <parameter key="web_profiler.controller.exception.class">Symfony\Bundle\WebProfilerBundle\Controller\ExceptionController</parameter>
@@ -704,6 +1195,9 @@
     </parameter>
   </parameters>
   <services>
+    <service id="app.form.registration" class="AppBundle\Form\RegistrationType">
+      <tag name="form.type" alias="app_user_registration"/>
+    </service>
     <service id="controller_name_converter" class="Symfony\Bundle\FrameworkBundle\Controller\ControllerNameParser" public="false">
       <tag name="monolog.logger" channel="request"/>
       <argument type="service" id="kernel"/>
@@ -991,6 +1485,7 @@
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.de.yml</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.de.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.de.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.de.yml</argument>
           </argument>
           <argument key="ro" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ro.xlf</argument>
@@ -1050,6 +1545,7 @@
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.es.yml</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.es.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.es.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.es.yml</argument>
           </argument>
           <argument key="el" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.el.xlf</argument>
@@ -1098,12 +1594,14 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ar.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ar.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ar.yml</argument>
+            <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.ar.yml</argument>
           </argument>
           <argument key="uk" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.uk.xlf</argument>
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.uk.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.uk.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.uk.yml</argument>
+            <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.uk.yml</argument>
           </argument>
           <argument key="nn" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.nn.xlf</argument>
@@ -1116,6 +1614,7 @@
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.fr.yml</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.fr.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.fr.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.fr.yml</argument>
           </argument>
           <argument key="pl" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.pl.xlf</argument>
@@ -1125,6 +1624,7 @@
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.pl.yml</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.pl.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.pl.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.pl.yml</argument>
           </argument>
           <argument key="da" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.da.xlf</argument>
@@ -1154,6 +1654,7 @@
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ru.yml</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.ru.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.ru.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.ru.yml</argument>
           </argument>
           <argument key="bg" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.bg.xlf</argument>
@@ -1204,6 +1705,7 @@
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.en.yml</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.en.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.en.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.en.yml</argument>
           </argument>
           <argument key="mn" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.mn.xlf</argument>
@@ -1529,6 +2031,8 @@
           <service class="Symfony\Component\Form\Extension\DependencyInjection\DependencyInjectionExtension" public="false">
             <argument type="service" id="service_container"/>
             <argument type="collection">
+              <argument key="app_user_registration">app.form.registration</argument>
+              <argument key="AppBundle\Form\RegistrationType">app.form.registration</argument>
               <argument key="form">form.type.form</argument>
               <argument key="Symfony\Component\Form\Extension\Core\Type\FormType">form.type.form</argument>
               <argument key="birthday">form.type.birthday</argument>
@@ -1607,6 +2111,12 @@
               <argument key="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\EasyAdminFormType">easyadmin.form.type</argument>
               <argument key="easyadmin_autocomplete">easyadmin.form.type.autocomplete</argument>
               <argument key="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\EasyAdminAutocompleteType">easyadmin.form.type.autocomplete</argument>
+              <argument key="vich_file">vich_uploader.form.type.file</argument>
+              <argument key="Vich\UploaderBundle\Form\Type\VichFileType">vich_uploader.form.type.file</argument>
+              <argument key="vich_image">vich_uploader.form.type.image</argument>
+              <argument key="Vich\UploaderBundle\Form\Type\VichImageType">vich_uploader.form.type.image</argument>
+              <argument key="ckeditor">ivory_ck_editor.form.type</argument>
+              <argument key="Ivory\CKEditorBundle\Form\Type\CKEditorType">ivory_ck_editor.form.type</argument>
             </argument>
             <argument type="collection">
               <argument key="Symfony\Component\Form\Extension\Core\Type\FormType" type="collection">
@@ -2329,7 +2839,7 @@
         </argument>
         <argument type="service">
           <service class="Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider" public="false">
-            <argument>5773ededc79e67.84141527</argument>
+            <argument>578f5bde5260a4.88696230</argument>
           </service>
         </argument>
       </argument>
@@ -2630,7 +3140,7 @@
         <argument type="service">
           <service class="Symfony\Component\Security\Http\Firewall\AnonymousAuthenticationListener" public="false">
             <argument type="service" id="security.token_storage"/>
-            <argument>5773ededc79e67.84141527</argument>
+            <argument>578f5bde5260a4.88696230</argument>
             <argument type="service" id="monolog.logger.security" on-invalid="null"/>
             <argument type="service" id="security.authentication.manager"/>
           </service>
@@ -2728,10 +3238,10 @@
       <argument type="collection">
         <argument key="debug">true</argument>
         <argument key="strict_variables">true</argument>
-        <argument key="exception_controller">twig.controller.exception:showAction</argument>
         <argument key="form_themes" type="collection">
           <argument>form_div_layout.html.twig</argument>
         </argument>
+        <argument key="exception_controller">twig.controller.exception:showAction</argument>
         <argument key="autoescape">filename</argument>
         <argument key="cache">/var/www/html/my_project/app/cache/dev/twig</argument>
         <argument key="charset">UTF-8</argument>
@@ -2870,6 +3380,7 @@
                 <argument type="service">
                   <service class="Symfony\Bridge\Twig\Form\TwigRendererEngine" public="false">
                     <argument type="collection">
+                      <argument>IvoryCKEditorBundle:Form:ckeditor_widget.html.twig</argument>
                       <argument>form_div_layout.html.twig</argument>
                     </argument>
                   </service>
@@ -2903,6 +3414,17 @@
             <argument>true</argument>
           </service>
         </argument>
+      </call>
+      <call method="addExtension">
+        <argument type="service">
+          <service class="Vich\UploaderBundle\Twig\Extension\UploaderExtension" public="false">
+            <tag name="twig.extension"/>
+            <argument type="service" id="vich_uploader.templating.helper.uploader_helper"/>
+          </service>
+        </argument>
+      </call>
+      <call method="addExtension">
+        <argument type="service" id="ivory_ck_editor.twig_extension"/>
       </call>
       <call method="addExtension">
         <argument type="service">
@@ -3049,9 +3571,48 @@
           <argument type="service" id="service_container"/>
           <call method="addEventSubscriber">
             <argument type="service">
+              <service class="Vich\UploaderBundle\EventListener\Doctrine\CleanListener" public="false">
+                <tag name="doctrine.event_subscriber" priority="50"/>
+                <argument>product_images</argument>
+                <argument type="service">
+                  <service class="Vich\UploaderBundle\Adapter\ORM\DoctrineORMAdapter" public="false"/>
+                </argument>
+                <argument type="service" id="vich_uploader.metadata_reader"/>
+                <argument type="service" id="vich_uploader.upload_handler"/>
+              </service>
+            </argument>
+          </call>
+          <call method="addEventSubscriber">
+            <argument type="service">
               <service class="FOS\UserBundle\Doctrine\UserListener" public="false">
                 <tag name="doctrine.event_subscriber"/>
                 <argument type="service" id="service_container"/>
+              </service>
+            </argument>
+          </call>
+          <call method="addEventSubscriber">
+            <argument type="service">
+              <service class="Vich\UploaderBundle\EventListener\Doctrine\RemoveListener" public="false">
+                <tag name="doctrine.event_subscriber" priority="0"/>
+                <argument>product_images</argument>
+                <argument type="service">
+                  <service class="Vich\UploaderBundle\Adapter\ORM\DoctrineORMAdapter" public="false"/>
+                </argument>
+                <argument type="service" id="vich_uploader.metadata_reader"/>
+                <argument type="service" id="vich_uploader.upload_handler"/>
+              </service>
+            </argument>
+          </call>
+          <call method="addEventSubscriber">
+            <argument type="service">
+              <service class="Vich\UploaderBundle\EventListener\Doctrine\UploadListener" public="false">
+                <tag name="doctrine.event_subscriber" priority="0"/>
+                <argument>product_images</argument>
+                <argument type="service">
+                  <service class="Vich\UploaderBundle\Adapter\ORM\DoctrineORMAdapter" public="false"/>
+                </argument>
+                <argument type="service" id="vich_uploader.metadata_reader"/>
+                <argument type="service" id="vich_uploader.upload_handler"/>
               </service>
             </argument>
           </call>
@@ -3283,7 +3844,7 @@
     <service id="fos_user.profile.form.factory" class="FOS\UserBundle\Form\Factory\FormFactory">
       <argument type="service" id="form.factory"/>
       <argument>fos_user_profile_form</argument>
-      <argument>FOS\UserBundle\Form\Type\ProfileFormType</argument>
+      <argument>AppBundle\Form\ProfileType</argument>
       <argument type="collection">
         <argument>Profile</argument>
         <argument>Default</argument>
@@ -3296,7 +3857,7 @@
     <service id="fos_user.registration.form.factory" class="FOS\UserBundle\Form\Factory\FormFactory">
       <argument type="service" id="form.factory"/>
       <argument>fos_user_registration_form</argument>
-      <argument>FOS\UserBundle\Form\Type\RegistrationFormType</argument>
+      <argument>AppBundle\Form\RegistrationType</argument>
       <argument type="collection">
         <argument>Registration</argument>
         <argument>Default</argument>
@@ -3371,22 +3932,22 @@
       <tag name="form.type"/>
       <argument type="service" id="easyadmin.config.manager"/>
       <argument type="collection">
-        <argument key="4" type="service">
+        <argument key="5" type="service">
           <service class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\AutocompleteTypeConfigurator" public="false">
             <tag name="easyadmin.form.type.configurator" priority="30"/>
           </service>
         </argument>
-        <argument key="3" type="service">
+        <argument key="4" type="service">
           <service class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\CollectionTypeConfigurator" public="false">
             <tag name="easyadmin.form.type.configurator" priority="20"/>
           </service>
         </argument>
-        <argument key="2" type="service">
+        <argument key="3" type="service">
           <service class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\CheckboxTypeConfigurator" public="false">
             <tag name="easyadmin.form.type.configurator" priority="10"/>
           </service>
         </argument>
-        <argument key="1" type="service">
+        <argument key="2" type="service">
           <service class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\RequiredOptionConfigurator" public="false">
             <tag name="easyadmin.form.type.configurator" priority="-10"/>
             <argument type="service">
@@ -3399,7 +3960,7 @@
             </argument>
           </service>
         </argument>
-        <argument key="0" type="service">
+        <argument key="1" type="service">
           <service class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\EntityTypeConfigurator" public="false">
             <tag name="easyadmin.form.type.configurator" priority="-20"/>
             <argument type="service">
@@ -3412,6 +3973,11 @@
             </argument>
           </service>
         </argument>
+        <argument key="0" type="service">
+          <service class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\IvoryCKEditorTypeConfigurator" public="false">
+            <tag name="easyadmin.form.type.configurator" priority="-130"/>
+          </service>
+        </argument>
       </argument>
     </service>
     <service id="easyadmin.form.type.autocomplete" class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\EasyAdminAutocompleteType">
@@ -3420,6 +3986,121 @@
     <service id="easyadmin.form.type.extension" class="JavierEguiluz\Bundle\EasyAdminBundle\Form\Extension\EasyAdminExtension">
       <tag name="form.type_extension" alias="form" extended_type="Symfony\Component\Form\Extension\Core\Type\FormType" extended-type="Symfony\Component\Form\Extension\Core\Type\FormType"/>
       <argument type="service" id="request_stack" on-invalid="null"/>
+    </service>
+    <service id="vich_uploader.templating.helper.uploader_helper" class="Vich\UploaderBundle\Templating\Helper\UploaderHelper">
+      <tag name="templating.helper" alias="vich_uploader"/>
+      <argument type="service" id="vich_uploader.storage"/>
+    </service>
+    <service id="vich_uploader.metadata_reader" class="Vich\UploaderBundle\Metadata\MetadataReader" public="false">
+      <argument type="service">
+        <service class="Metadata\MetadataFactory" public="false">
+          <argument type="service">
+            <service class="Vich\UploaderBundle\Metadata\Driver\ChainDriver" public="false">
+              <argument type="collection">
+                <argument type="service">
+                  <service class="Vich\UploaderBundle\Metadata\Driver\AnnotationDriver" public="false">
+                    <argument type="service" id="annotation_reader"/>
+                  </service>
+                </argument>
+                <argument type="service">
+                  <service class="Vich\UploaderBundle\Metadata\Driver\YamlDriver" public="false">
+                    <argument type="service">
+                      <service class="Vich\UploaderBundle\Metadata\Driver\FileLocator" public="false">
+                        <argument type="collection"/>
+                      </service>
+                    </argument>
+                  </service>
+                </argument>
+                <argument type="service">
+                  <service class="Vich\UploaderBundle\Metadata\Driver\XmlDriver" public="false">
+                    <argument type="service">
+                      <service class="Vich\UploaderBundle\Metadata\Driver\FileLocator" public="false">
+                        <argument type="collection"/>
+                      </service>
+                    </argument>
+                  </service>
+                </argument>
+              </argument>
+            </service>
+          </argument>
+          <argument>Metadata\ClassHierarchyMetadata</argument>
+          <argument>true</argument>
+          <call method="setCache">
+            <argument type="service">
+              <service class="Metadata\Cache\FileCache" public="false">
+                <argument>/var/www/html/my_project/app/cache/dev/vich_uploader</argument>
+              </service>
+            </argument>
+          </call>
+        </service>
+      </argument>
+    </service>
+    <service id="vich_uploader.property_mapping_factory" class="Vich\UploaderBundle\Mapping\PropertyMappingFactory" public="false">
+      <argument type="service" id="service_container"/>
+      <argument type="service" id="vich_uploader.metadata_reader"/>
+      <argument type="collection">
+        <argument key="product_images" type="collection">
+          <argument key="uri_prefix">/my_project/web/uploads/images/products/</argument>
+          <argument key="upload_destination">/var/www/html/my_project/app/../web/uploads/images/products</argument>
+          <argument key="namer" type="collection">
+            <argument key="service">null</argument>
+            <argument key="options">null</argument>
+          </argument>
+          <argument key="directory_namer">null</argument>
+          <argument key="delete_on_remove">true</argument>
+          <argument key="delete_on_update">true</argument>
+          <argument key="inject_on_load">false</argument>
+          <argument key="db_driver">orm</argument>
+        </argument>
+      </argument>
+      <argument>_name</argument>
+    </service>
+    <service id="vich_uploader.namer_uniqid" class="Vich\UploaderBundle\Naming\UniqidNamer"/>
+    <service id="vich_uploader.namer_property" class="Vich\UploaderBundle\Naming\PropertyNamer"/>
+    <service id="vich_uploader.namer_origname" class="Vich\UploaderBundle\Naming\OrignameNamer"/>
+    <service id="vich_uploader.form.type.file" class="Vich\UploaderBundle\Form\Type\VichFileType">
+      <tag name="form.type" alias="vich_file"/>
+      <argument type="service" id="vich_uploader.storage"/>
+      <argument type="service" id="vich_uploader.upload_handler"/>
+      <argument type="service" id="translator"/>
+    </service>
+    <service id="vich_uploader.form.type.image" class="Vich\UploaderBundle\Form\Type\VichImageType">
+      <tag name="form.type" alias="vich_image"/>
+      <argument type="service" id="vich_uploader.storage"/>
+      <argument type="service" id="vich_uploader.upload_handler"/>
+      <argument type="service" id="translator"/>
+    </service>
+    <service id="vich_uploader.download_handler" class="Vich\UploaderBundle\Handler\DownloadHandler" lazy="true">
+      <argument type="service" id="vich_uploader.property_mapping_factory"/>
+      <argument type="service" id="vich_uploader.storage"/>
+    </service>
+    <service id="vich_uploader.upload_handler" class="Vich\UploaderBundle\Handler\UploadHandler" lazy="true">
+      <argument type="service" id="vich_uploader.property_mapping_factory"/>
+      <argument type="service" id="vich_uploader.storage"/>
+      <argument type="service">
+        <service class="Vich\UploaderBundle\Injector\FileInjector" public="false">
+          <argument type="service" id="vich_uploader.storage"/>
+        </service>
+      </argument>
+      <argument type="service" id="debug.event_dispatcher"/>
+    </service>
+    <service id="ivory_ck_editor.form.type" class="Ivory\CKEditorBundle\Form\Type\CKEditorType">
+      <tag name="form.type" alias="ckeditor"/>
+      <argument type="service" id="ivory_ck_editor.config_manager"/>
+      <argument type="service" id="ivory_ck_editor.plugin_manager"/>
+      <argument type="service" id="ivory_ck_editor.styles_set_manager"/>
+      <argument type="service" id="ivory_ck_editor.template_manager"/>
+    </service>
+    <service id="ivory_ck_editor.config_manager" class="Ivory\CKEditorBundle\Model\ConfigManager"/>
+    <service id="ivory_ck_editor.plugin_manager" class="Ivory\CKEditorBundle\Model\PluginManager"/>
+    <service id="ivory_ck_editor.styles_set_manager" class="Ivory\CKEditorBundle\Model\StylesSetManager"/>
+    <service id="ivory_ck_editor.template_manager" class="Ivory\CKEditorBundle\Model\TemplateManager"/>
+    <service id="ivory_ck_editor.renderer" class="Ivory\CKEditorBundle\Renderer\CKEditorRenderer">
+      <argument type="service" id="service_container"/>
+    </service>
+    <service id="ivory_ck_editor.twig_extension" class="Ivory\CKEditorBundle\Twig\CKEditorExtension">
+      <tag name="twig.extension"/>
+      <argument type="service" id="ivory_ck_editor.renderer"/>
     </service>
     <service id="data_collector.dump" class="Symfony\Component\HttpKernel\DataCollector\DumpDataCollector">
       <tag name="data_collector" id="dump" template="@Debug/Profiler/dump.html.twig" priority="240"/>
@@ -3744,12 +4425,24 @@
         <argument>Doctrine</argument>
       </call>
       <call method="addPath">
+        <argument>/var/www/html/my_project/app/Resources/FOSUserBundle/views</argument>
+        <argument>FOSUser</argument>
+      </call>
+      <call method="addPath">
         <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/views</argument>
         <argument>FOSUser</argument>
       </call>
       <call method="addPath">
         <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/views</argument>
         <argument>EasyAdmin</argument>
+      </call>
+      <call method="addPath">
+        <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/views</argument>
+        <argument>VichUploader</argument>
+      </call>
+      <call method="addPath">
+        <argument>/var/www/html/my_project/vendor/egeloen/ckeditor-bundle/Resources/views</argument>
+        <argument>IvoryCKEditor</argument>
       </call>
       <call method="addPath">
         <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/views</argument>
@@ -3873,6 +4566,9 @@
         </service>
       </argument>
       <argument>AppBundle\Entity\User</argument>
+    </service>
+    <service id="vich_uploader.storage" class="Vich\UploaderBundle\Storage\FileSystemStorage">
+      <argument type="service" id="vich_uploader.property_mapping_factory"/>
     </service>
     <service id="session.storage" alias="session.storage.native"/>
     <service id="event_dispatcher" alias="debug.event_dispatcher"/>

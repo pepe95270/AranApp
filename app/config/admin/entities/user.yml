@@ -1,0 +1,100 @@
+# This file sets the configuration of the 'Product' entity.
+#
+# NOTE: this demo application splits the backend configuration into several
+# small files for educational purposes. In your application you can put the
+# entire backend configuration in just one file.
+#
+# The configuration options are explained in detail in the bundle documentation,
+# which is published at https://github.com/javiereguiluz/EasyAdminBundle
+easy_admin:
+    entities:
+        # the configuration of this entity is very verbose because it's used as
+        # an example to show all the configuration options available for entities
+        # check out the configuration of the other entities to see how concise
+        # can be the configuration of your backend
+        User:
+            class: AppBundle\Entity\User
+            label: 'Hôtesse'
+            list:
+                title: '%%entity_label%%'
+                actions:
+                    - { name: 'show', label: '', icon: 'search' }
+                    - { name: 'edit', label: '', icon: 'edit' }
+                    - { name: 'delete', label: '', icon: 'trash' }
+                fields:
+                    - { property: 'enabled', label: 'Avis' }
+                    - { property: 'image', type: 'image', label: 'Photo', base_path: %app.path.product_images% }
+                    - { property: 'name', label: 'Nom' }
+                    - { property: 'prenom', label: 'Prenom' }
+                    - { property: 'ville', label: 'Ville' }
+                    - { property: 'telport', label: 'Portable' }
+                    - { property: 'permis', label: 'Permis' }
+                    - { property: 'voiture', label: 'Voiture' }
+                    - { property: 'createdAt', format: 'j / M / Y', label: 'Crée le' }
+            show:
+                fields:
+                    - { property: 'enabled', label: 'Avis' }
+                    - { property: 'image', type: 'image', label: 'Photo', base_path: %app.path.product_images% }
+                    - { property: 'name', label: 'Nom' }
+                    - { property: 'prenom', label: 'Prenom' }
+                    - { property: 'ville', label: 'Ville' }
+                    - { property: 'permis', label: 'Permis' }
+                    - { property: 'voiture', label: 'Voiture' }
+                    - { property: 'createdAt', format: 'j / M / Y', label: 'Crée le' }
+
+                    - { property: 'name', css_class: 'large' }
+                    - { property: 'image', type: 'image', base_path: %app.path.product_images% }
+                    - evenements
+                    - tags
+            form:
+                fields:
+                    - { property: 'poste', label: 'Poste recherché', type: 'choice', type_options: { choices: { 'Evenementiel': 'Evenementiel', 'CDI': 'CDI' } },css_class: 'col-sm-8' }
+                    - { property: 'imageFile', label: 'Photo', type: 'Vich\UploaderBundle\Form\Type\VichImageType',  css_class: 'col-sm-4' }
+                    - { property: 'name', label: 'Nom', css_class: 'col-sm-5' }
+                    - { property: 'nomjeunefille', label: 'Nom de jeune fille', css_class: 'col-sm-4' }
+                    - { property: 'prenom', label: 'Prenom', css_class: 'col-sm-3' }
+                    - { property: 'adresse', label: 'Adresse', css_class: 'col-sm-7' }
+                    - { property: 'codepostal', label: 'Code Postal', css_class: 'col-sm-2' }
+                    - { property: 'ville', label: 'Ville', css_class: 'col-sm-3' }
+                    - { property: 'email', label: 'Adresse E-mail', css_class: 'col-sm-6' }
+                    - { property: 'telfixe', label: 'Téléphone fixe', css_class: 'col-sm-3' }
+                    - { property: 'telport', label: 'Téléphone portable', css_class: 'col-sm-3' }
+                    - { property: 'datenaissance', label: 'Date de naissance', css_class: 'col-sm-3' }
+                    - { property: 'lieunaissance', label: 'Lieux et département de naissance', css_class: 'col-sm-9' }
+                    - { property: 'secu', label: 'Numéro de sécurité social', css_class: 'col-sm-6' }
+                    - { property: 'nationalite', label: 'Nationalité', css_class: 'col-sm-6' }
+                    - { property: 'cartedesejour', label: 'Numéro de carte de séjour', css_class: 'col-sm-5' }
+                    - { property: 'delivreepar', label: 'Délivrée par la préfecture de', css_class: 'col-sm-4' }
+                    - { property: 'dateexpiration', label: "Date d'expiration", css_class: 'col-sm-3' }
+                    - { property: 'situation', label: 'Situation Familiale', type: 'choice', type_options: { choices: { 'Célibataire': 'Célibataire', 'Marié(e)': 'Marié(e)', 'Concubin(e)': 'Concubin(e)'} },css_class: 'col-sm-4' }
+                    - { property: 'obligationemploi', label: "Cocher cette case si vous êtes bénéficiaire de l’obligation d’emploi selon l’article L. 5212-13 du Code du travail", css_class: 'col-sm-8' }
+                    - { property: 'tags', help: 'Cliquer sur "Ajouter un nouvel élément" pour ajouter une langue', label: 'Langues parlées (+niveau entre parenthèse)', css_class: 'col-sm-12' }
+                    - { property: 'niveauetude', label: "Niveau d'étude", css_class: 'col-sm-12' }
+                    - { property: 'permis', label: "Permis de conduire", css_class: 'col-sm-3' }
+                    - { property: 'voiture', label: "Voiture", css_class: 'col-sm-3' }
+                    - { property: 'dateobtention', label: "Date d'obtention", css_class: 'col-sm-3' }
+                    - { property: 'prefecture', label: "Préfecture", css_class: 'col-sm-3' }
+                    - { property: 'taille', label: "Taille (cm)", css_class: 'col-sm-3' }
+                    - { property: 'taillejupe', label: "Taille jupe/pantalon", css_class: 'col-sm-3' }
+                    - { property: 'tourpoitrine', label: "Tour de poitrine", css_class: 'col-sm-3' }
+                    - { property: 'tailleveste', label: "Taille de veste", css_class: 'col-sm-3' }
+                    - { property: 'pointure', label: "Pointure chaussures", css_class: 'col-sm-3' }
+                    - { property: 'couleurcheveux', label: "Couleur de cheveux", css_class: 'col-sm-4' }
+                    - { property: 'couleuryeux', label: "Couleur des yeux", css_class: 'col-sm-4' }
+                    - { property: 'experiencehote', label: "Cocher la case si vous avez déjà eu une expérience d'hôte(sse)", css_class: 'col-sm-5' }
+                    - { property: 'experiencehotedetail', label: 'Si oui, laquelle', type: 'Ivory\CKEditorBundle\Form\Type\CKEditorType', css_class: 'col-sm-7' }
+                    - { property: 'bar', label: "Bar", css_class: 'col-sm-3' }
+                    - { property: 'animation', label: "Animation", css_class: 'col-sm-3' }
+                    - { property: 'micro', label: "Passage de micros", css_class: 'col-sm-3' }
+                    - { property: 'vente', label: "Vente", css_class: 'col-sm-3' }
+                    - { property: 'service', label: "Service assiette / plateau", css_class: 'col-sm-3' }
+                    - { property: 'distribution', label: "Distribution prospectus", css_class: 'col-sm-3' }
+                    - { property: 'traduction', label: "Traduction", css_class: 'col-sm-3' }
+                    - { property: 'saisie', label: "Saisie informatique", css_class: 'col-sm-3' }
+                    - { property: 'commentconnuagence', label: "Comment avez-vous connu notre agence ?", css_class: 'col-sm-12' }
+                    - { property: 'disponibilite', label: 'Disponibilité', type: 'choice', type_options: { choices: { 'Totale': 'Totale', 'Soirs': 'Soirs', 'Week-end': 'Week-end', 'Journée': 'Journée'} },css_class: 'col-sm-4' }
+                    - { property: 'dispojourshoraires', label: 'En semaine (précisez les jours et horaires)', type: 'Ivory\CKEditorBundle\Form\Type\CKEditorType', css_class: 'col-sm-8' }
+                    - { property: 'villehebergement', help: 'Cliquer sur "Ajouter un nouvel élément" pour ajouter une ville', label: 'Ville dans lesquelles vous pouvez être hébergée en France', css_class: 'col-sm-12' }
+                    - { property: 'personneaprevenir', label: "Personne à prévenir en cas d'accident", css_class: 'col-sm-6' }
+                    - { property: 'adressetelaccident', label: "Adresse et téléphone", css_class: 'col-sm-6' }
+                    - { property: 'evenements', css_class: 'col-sm-12', type: 'easyadmin_autocomplete' }

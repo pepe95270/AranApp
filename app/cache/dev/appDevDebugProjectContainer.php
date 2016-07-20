@@ -37,6 +37,7 @@ class appDevDebugProjectContainer extends Container
         $this->scopeChildren = array('request' => array());
         $this->methodMap = array(
             'annotation_reader' => 'getAnnotationReaderService',
+            'app.form.registration' => 'getApp_Form_RegistrationService',
             'assets.context' => 'getAssets_ContextService',
             'assets.packages' => 'getAssets_PackagesService',
             'cache_clearer' => 'getCacheClearerService',
@@ -152,6 +153,13 @@ class appDevDebugProjectContainer extends Container
             'fragment.renderer.inline' => 'getFragment_Renderer_InlineService',
             'fragment.renderer.ssi' => 'getFragment_Renderer_SsiService',
             'http_kernel' => 'getHttpKernelService',
+            'ivory_ck_editor.config_manager' => 'getIvoryCkEditor_ConfigManagerService',
+            'ivory_ck_editor.form.type' => 'getIvoryCkEditor_Form_TypeService',
+            'ivory_ck_editor.plugin_manager' => 'getIvoryCkEditor_PluginManagerService',
+            'ivory_ck_editor.renderer' => 'getIvoryCkEditor_RendererService',
+            'ivory_ck_editor.styles_set_manager' => 'getIvoryCkEditor_StylesSetManagerService',
+            'ivory_ck_editor.template_manager' => 'getIvoryCkEditor_TemplateManagerService',
+            'ivory_ck_editor.twig_extension' => 'getIvoryCkEditor_TwigExtensionService',
             'kernel' => 'getKernelService',
             'kernel.class_cache.cache_warmer' => 'getKernel_ClassCache_CacheWarmerService',
             'locale_listener' => 'getLocaleListenerService',
@@ -277,6 +285,17 @@ class appDevDebugProjectContainer extends Container
             'validator.expression' => 'getValidator_ExpressionService',
             'var_dumper.cli_dumper' => 'getVarDumper_CliDumperService',
             'var_dumper.cloner' => 'getVarDumper_ClonerService',
+            'vich_uploader.download_handler' => 'getVichUploader_DownloadHandlerService',
+            'vich_uploader.form.type.file' => 'getVichUploader_Form_Type_FileService',
+            'vich_uploader.form.type.image' => 'getVichUploader_Form_Type_ImageService',
+            'vich_uploader.metadata_reader' => 'getVichUploader_MetadataReaderService',
+            'vich_uploader.namer_origname' => 'getVichUploader_NamerOrignameService',
+            'vich_uploader.namer_property' => 'getVichUploader_NamerPropertyService',
+            'vich_uploader.namer_uniqid' => 'getVichUploader_NamerUniqidService',
+            'vich_uploader.property_mapping_factory' => 'getVichUploader_PropertyMappingFactoryService',
+            'vich_uploader.storage' => 'getVichUploader_StorageService',
+            'vich_uploader.templating.helper.uploader_helper' => 'getVichUploader_Templating_Helper_UploaderHelperService',
+            'vich_uploader.upload_handler' => 'getVichUploader_UploadHandlerService',
             'web_profiler.controller.exception' => 'getWebProfiler_Controller_ExceptionService',
             'web_profiler.controller.profiler' => 'getWebProfiler_Controller_ProfilerService',
             'web_profiler.controller.router' => 'getWebProfiler_Controller_RouterService',
@@ -320,6 +339,19 @@ class appDevDebugProjectContainer extends Container
     protected function getAnnotationReaderService()
     {
         return $this->services['annotation_reader'] = new \Doctrine\Common\Annotations\CachedReader(new \Doctrine\Common\Annotations\AnnotationReader(), new \Doctrine\Common\Cache\FilesystemCache((__DIR__.'/annotations')), true);
+    }
+
+    /**
+     * Gets the 'app.form.registration' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \AppBundle\Form\RegistrationType A AppBundle\Form\RegistrationType instance.
+     */
+    protected function getApp_Form_RegistrationService()
+    {
+        return $this->services['app.form.registration'] = new \AppBundle\Form\RegistrationType();
     }
 
     /**
@@ -604,18 +636,26 @@ class appDevDebugProjectContainer extends Container
      */
     protected function getDoctrine_Dbal_DefaultConnectionService()
     {
-        $a = new \Doctrine\DBAL\Logging\LoggerChain();
-        $a->addLogger(new \Symfony\Bridge\Doctrine\Logger\DbalLogger($this->get('monolog.logger.doctrine', ContainerInterface::NULL_ON_INVALID_REFERENCE), $this->get('debug.stopwatch', ContainerInterface::NULL_ON_INVALID_REFERENCE)));
-        $a->addLogger($this->get('doctrine.dbal.logger.profiling.default'));
+        $a = $this->get('vich_uploader.metadata_reader');
+        $b = $this->get('vich_uploader.upload_handler');
 
-        $b = new \Doctrine\DBAL\Configuration();
-        $b->setSQLLogger($a);
+        $c = new \Doctrine\DBAL\Logging\LoggerChain();
+        $c->addLogger(new \Symfony\Bridge\Doctrine\Logger\DbalLogger($this->get('monolog.logger.doctrine', ContainerInterface::NULL_ON_INVALID_REFERENCE), $this->get('debug.stopwatch', ContainerInterface::NULL_ON_INVALID_REFERENCE)));
+        $c->addLogger($this->get('doctrine.dbal.logger.profiling.default'));
 
-        $c = new \Symfony\Bridge\Doctrine\ContainerAwareEventManager($this);
-        $c->addEventSubscriber(new \FOS\UserBundle\Doctrine\UserListener($this));
-        $c->addEventListener(array(0 => 'loadClassMetadata'), $this->get('doctrine.orm.default_listeners.attach_entity_listeners'));
+        $d = new \Doctrine\DBAL\Configuration();
+        $d->setSQLLogger($c);
 
-        return $this->services['doctrine.dbal.default_connection'] = $this->get('doctrine.dbal.connection_factory')->createConnection(array('driver' => 'pdo_mysql', 'host' => '127.0.0.1', 'port' => NULL, 'dbname' => 'symfony', 'user' => 'root', 'password' => 'colocomotive4', 'charset' => 'UTF8', 'driverOptions' => array(), 'defaultTableOptions' => array()), $b, $c, array());
+        $e = new \Vich\UploaderBundle\Adapter\ORM\DoctrineORMAdapter();
+
+        $f = new \Symfony\Bridge\Doctrine\ContainerAwareEventManager($this);
+        $f->addEventSubscriber(new \Vich\UploaderBundle\EventListener\Doctrine\CleanListener('product_images', $e, $a, $b));
+        $f->addEventSubscriber(new \FOS\UserBundle\Doctrine\UserListener($this));
+        $f->addEventSubscriber(new \Vich\UploaderBundle\EventListener\Doctrine\RemoveListener('product_images', $e, $a, $b));
+        $f->addEventSubscriber(new \Vich\UploaderBundle\EventListener\Doctrine\UploadListener('product_images', $e, $a, $b));
+        $f->addEventListener(array(0 => 'loadClassMetadata'), $this->get('doctrine.orm.default_listeners.attach_entity_listeners'));
+
+        return $this->services['doctrine.dbal.default_connection'] = $this->get('doctrine.dbal.connection_factory')->createConnection(array('driver' => 'pdo_mysql', 'host' => '127.0.0.1', 'port' => NULL, 'dbname' => 'symfony', 'user' => 'root', 'password' => 'colocomotive4', 'charset' => 'UTF8', 'driverOptions' => array(), 'defaultTableOptions' => array()), $d, $f, array());
     }
 
     /**
@@ -837,7 +877,7 @@ class appDevDebugProjectContainer extends Container
 
         $c = new \Symfony\Component\Form\FormTypeGuesserChain(array(0 => $a, 1 => $b));
 
-        return $this->services['easyadmin.form.type'] = new \JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\EasyAdminFormType($this->get('easyadmin.config.manager'), array(4 => new \JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\AutocompleteTypeConfigurator(), 3 => new \JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\CollectionTypeConfigurator(), 2 => new \JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\CheckboxTypeConfigurator(), 1 => new \JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\RequiredOptionConfigurator($c), 0 => new \JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\EntityTypeConfigurator($c)));
+        return $this->services['easyadmin.form.type'] = new \JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\EasyAdminFormType($this->get('easyadmin.config.manager'), array(5 => new \JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\AutocompleteTypeConfigurator(), 4 => new \JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\CollectionTypeConfigurator(), 3 => new \JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\CheckboxTypeConfigurator(), 2 => new \JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\RequiredOptionConfigurator($c), 1 => new \JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\EntityTypeConfigurator($c), 0 => new \JavierEguiluz\Bundle\EasyAdminBundle\Form\Type\Configurator\IvoryCKEditorTypeConfigurator()));
     }
 
     /**
@@ -984,7 +1024,7 @@ class appDevDebugProjectContainer extends Container
      */
     protected function getForm_RegistryService()
     {
-        return $this->services['form.registry'] = new \Symfony\Component\Form\FormRegistry(array(0 => new \Symfony\Component\Form\Extension\DependencyInjection\DependencyInjectionExtension($this, array('form' => 'form.type.form', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\FormType' => 'form.type.form', 'birthday' => 'form.type.birthday', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\BirthdayType' => 'form.type.birthday', 'checkbox' => 'form.type.checkbox', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\CheckboxType' => 'form.type.checkbox', 'choice' => 'form.type.choice', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\ChoiceType' => 'form.type.choice', 'collection' => 'form.type.collection', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\CollectionType' => 'form.type.collection', 'country' => 'form.type.country', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\CountryType' => 'form.type.country', 'date' => 'form.type.date', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\DateType' => 'form.type.date', 'datetime' => 'form.type.datetime', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\DateTimeType' => 'form.type.datetime', 'email' => 'form.type.email', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\EmailType' => 'form.type.email', 'file' => 'form.type.file', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\FileType' => 'form.type.file', 'hidden' => 'form.type.hidden', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\HiddenType' => 'form.type.hidden', 'integer' => 'form.type.integer', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\IntegerType' => 'form.type.integer', 'language' => 'form.type.language', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\LanguageType' => 'form.type.language', 'locale' => 'form.type.locale', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\LocaleType' => 'form.type.locale', 'money' => 'form.type.money', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\MoneyType' => 'form.type.money', 'number' => 'form.type.number', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\NumberType' => 'form.type.number', 'password' => 'form.type.password', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\PasswordType' => 'form.type.password', 'percent' => 'form.type.percent', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\PercentType' => 'form.type.percent', 'radio' => 'form.type.radio', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\RadioType' => 'form.type.radio', 'range' => 'form.type.range', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\RangeType' => 'form.type.range', 'repeated' => 'form.type.repeated', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\RepeatedType' => 'form.type.repeated', 'search' => 'form.type.search', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\SearchType' => 'form.type.search', 'textarea' => 'form.type.textarea', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\TextareaType' => 'form.type.textarea', 'text' => 'form.type.text', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\TextType' => 'form.type.text', 'time' => 'form.type.time', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\TimeType' => 'form.type.time', 'timezone' => 'form.type.timezone', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\TimezoneType' => 'form.type.timezone', 'url' => 'form.type.url', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\UrlType' => 'form.type.url', 'button' => 'form.type.button', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\ButtonType' => 'form.type.button', 'submit' => 'form.type.submit', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\SubmitType' => 'form.type.submit', 'reset' => 'form.type.reset', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\ResetType' => 'form.type.reset', 'currency' => 'form.type.currency', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\CurrencyType' => 'form.type.currency', 'entity' => 'form.type.entity', 'Symfony\\Bridge\\Doctrine\\Form\\Type\\EntityType' => 'form.type.entity', 'fos_user_username' => 'fos_user.username_form_type', 'FOS\\UserBundle\\Form\\Type\\UsernameFormType' => 'fos_user.username_form_type', 'fos_user_profile' => 'fos_user.profile.form.type', 'FOS\\UserBundle\\Form\\Type\\ProfileFormType' => 'fos_user.profile.form.type', 'fos_user_registration' => 'fos_user.registration.form.type', 'FOS\\UserBundle\\Form\\Type\\RegistrationFormType' => 'fos_user.registration.form.type', 'fos_user_change_password' => 'fos_user.change_password.form.type', 'FOS\\UserBundle\\Form\\Type\\ChangePasswordFormType' => 'fos_user.change_password.form.type', 'fos_user_resetting' => 'fos_user.resetting.form.type', 'FOS\\UserBundle\\Form\\Type\\ResettingFormType' => 'fos_user.resetting.form.type', 'easyadmin.form.type' => 'easyadmin.form.type', 'JavierEguiluz\\Bundle\\EasyAdminBundle\\Form\\Type\\EasyAdminFormType' => 'easyadmin.form.type', 'easyadmin_autocomplete' => 'easyadmin.form.type.autocomplete', 'JavierEguiluz\\Bundle\\EasyAdminBundle\\Form\\Type\\EasyAdminAutocompleteType' => 'easyadmin.form.type.autocomplete'), array('Symfony\\Component\\Form\\Extension\\Core\\Type\\FormType' => array(0 => 'form.type_extension.form.http_foundation', 1 => 'form.type_extension.form.validator', 2 => 'form.type_extension.csrf', 3 => 'form.type_extension.form.data_collector', 4 => 'easyadmin.form.type.extension'), 'Symfony\\Component\\Form\\Extension\\Core\\Type\\RepeatedType' => array(0 => 'form.type_extension.repeated.validator'), 'Symfony\\Component\\Form\\Extension\\Core\\Type\\SubmitType' => array(0 => 'form.type_extension.submit.validator')), array(0 => 'form.type_guesser.validator', 1 => 'form.type_guesser.doctrine'))), $this->get('form.resolved_type_factory'));
+        return $this->services['form.registry'] = new \Symfony\Component\Form\FormRegistry(array(0 => new \Symfony\Component\Form\Extension\DependencyInjection\DependencyInjectionExtension($this, array('app_user_registration' => 'app.form.registration', 'AppBundle\\Form\\RegistrationType' => 'app.form.registration', 'form' => 'form.type.form', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\FormType' => 'form.type.form', 'birthday' => 'form.type.birthday', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\BirthdayType' => 'form.type.birthday', 'checkbox' => 'form.type.checkbox', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\CheckboxType' => 'form.type.checkbox', 'choice' => 'form.type.choice', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\ChoiceType' => 'form.type.choice', 'collection' => 'form.type.collection', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\CollectionType' => 'form.type.collection', 'country' => 'form.type.country', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\CountryType' => 'form.type.country', 'date' => 'form.type.date', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\DateType' => 'form.type.date', 'datetime' => 'form.type.datetime', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\DateTimeType' => 'form.type.datetime', 'email' => 'form.type.email', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\EmailType' => 'form.type.email', 'file' => 'form.type.file', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\FileType' => 'form.type.file', 'hidden' => 'form.type.hidden', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\HiddenType' => 'form.type.hidden', 'integer' => 'form.type.integer', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\IntegerType' => 'form.type.integer', 'language' => 'form.type.language', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\LanguageType' => 'form.type.language', 'locale' => 'form.type.locale', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\LocaleType' => 'form.type.locale', 'money' => 'form.type.money', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\MoneyType' => 'form.type.money', 'number' => 'form.type.number', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\NumberType' => 'form.type.number', 'password' => 'form.type.password', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\PasswordType' => 'form.type.password', 'percent' => 'form.type.percent', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\PercentType' => 'form.type.percent', 'radio' => 'form.type.radio', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\RadioType' => 'form.type.radio', 'range' => 'form.type.range', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\RangeType' => 'form.type.range', 'repeated' => 'form.type.repeated', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\RepeatedType' => 'form.type.repeated', 'search' => 'form.type.search', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\SearchType' => 'form.type.search', 'textarea' => 'form.type.textarea', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\TextareaType' => 'form.type.textarea', 'text' => 'form.type.text', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\TextType' => 'form.type.text', 'time' => 'form.type.time', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\TimeType' => 'form.type.time', 'timezone' => 'form.type.timezone', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\TimezoneType' => 'form.type.timezone', 'url' => 'form.type.url', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\UrlType' => 'form.type.url', 'button' => 'form.type.button', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\ButtonType' => 'form.type.button', 'submit' => 'form.type.submit', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\SubmitType' => 'form.type.submit', 'reset' => 'form.type.reset', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\ResetType' => 'form.type.reset', 'currency' => 'form.type.currency', 'Symfony\\Component\\Form\\Extension\\Core\\Type\\CurrencyType' => 'form.type.currency', 'entity' => 'form.type.entity', 'Symfony\\Bridge\\Doctrine\\Form\\Type\\EntityType' => 'form.type.entity', 'fos_user_username' => 'fos_user.username_form_type', 'FOS\\UserBundle\\Form\\Type\\UsernameFormType' => 'fos_user.username_form_type', 'fos_user_profile' => 'fos_user.profile.form.type', 'FOS\\UserBundle\\Form\\Type\\ProfileFormType' => 'fos_user.profile.form.type', 'fos_user_registration' => 'fos_user.registration.form.type', 'FOS\\UserBundle\\Form\\Type\\RegistrationFormType' => 'fos_user.registration.form.type', 'fos_user_change_password' => 'fos_user.change_password.form.type', 'FOS\\UserBundle\\Form\\Type\\ChangePasswordFormType' => 'fos_user.change_password.form.type', 'fos_user_resetting' => 'fos_user.resetting.form.type', 'FOS\\UserBundle\\Form\\Type\\ResettingFormType' => 'fos_user.resetting.form.type', 'easyadmin.form.type' => 'easyadmin.form.type', 'JavierEguiluz\\Bundle\\EasyAdminBundle\\Form\\Type\\EasyAdminFormType' => 'easyadmin.form.type', 'easyadmin_autocomplete' => 'easyadmin.form.type.autocomplete', 'JavierEguiluz\\Bundle\\EasyAdminBundle\\Form\\Type\\EasyAdminAutocompleteType' => 'easyadmin.form.type.autocomplete', 'vich_file' => 'vich_uploader.form.type.file', 'Vich\\UploaderBundle\\Form\\Type\\VichFileType' => 'vich_uploader.form.type.file', 'vich_image' => 'vich_uploader.form.type.image', 'Vich\\UploaderBundle\\Form\\Type\\VichImageType' => 'vich_uploader.form.type.image', 'ckeditor' => 'ivory_ck_editor.form.type', 'Ivory\\CKEditorBundle\\Form\\Type\\CKEditorType' => 'ivory_ck_editor.form.type'), array('Symfony\\Component\\Form\\Extension\\Core\\Type\\FormType' => array(0 => 'form.type_extension.form.http_foundation', 1 => 'form.type_extension.form.validator', 2 => 'form.type_extension.csrf', 3 => 'form.type_extension.form.data_collector', 4 => 'easyadmin.form.type.extension'), 'Symfony\\Component\\Form\\Extension\\Core\\Type\\RepeatedType' => array(0 => 'form.type_extension.repeated.validator'), 'Symfony\\Component\\Form\\Extension\\Core\\Type\\SubmitType' => array(0 => 'form.type_extension.submit.validator')), array(0 => 'form.type_guesser.validator', 1 => 'form.type_guesser.doctrine'))), $this->get('form.resolved_type_factory'));
     }
 
     /**
@@ -1608,7 +1648,7 @@ class appDevDebugProjectContainer extends Container
      */
     protected function getFosUser_Profile_Form_FactoryService()
     {
-        return $this->services['fos_user.profile.form.factory'] = new \FOS\UserBundle\Form\Factory\FormFactory($this->get('form.factory'), 'fos_user_profile_form', 'FOS\\UserBundle\\Form\\Type\\ProfileFormType', array(0 => 'Profile', 1 => 'Default'));
+        return $this->services['fos_user.profile.form.factory'] = new \FOS\UserBundle\Form\Factory\FormFactory($this->get('form.factory'), 'fos_user_profile_form', 'AppBundle\\Form\\ProfileType', array(0 => 'Profile', 1 => 'Default'));
     }
 
     /**
@@ -1634,7 +1674,7 @@ class appDevDebugProjectContainer extends Container
      */
     protected function getFosUser_Registration_Form_FactoryService()
     {
-        return $this->services['fos_user.registration.form.factory'] = new \FOS\UserBundle\Form\Factory\FormFactory($this->get('form.factory'), 'fos_user_registration_form', 'FOS\\UserBundle\\Form\\Type\\RegistrationFormType', array(0 => 'Registration', 1 => 'Default'));
+        return $this->services['fos_user.registration.form.factory'] = new \FOS\UserBundle\Form\Factory\FormFactory($this->get('form.factory'), 'fos_user_registration_form', 'AppBundle\\Form\\RegistrationType', array(0 => 'Registration', 1 => 'Default'));
     }
 
     /**
@@ -1882,6 +1922,97 @@ class appDevDebugProjectContainer extends Container
     protected function getHttpKernelService()
     {
         return $this->services['http_kernel'] = new \Symfony\Component\HttpKernel\DependencyInjection\ContainerAwareHttpKernel($this->get('debug.event_dispatcher'), $this, $this->get('debug.controller_resolver'), $this->get('request_stack'), false);
+    }
+
+    /**
+     * Gets the 'ivory_ck_editor.config_manager' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Ivory\CKEditorBundle\Model\ConfigManager A Ivory\CKEditorBundle\Model\ConfigManager instance.
+     */
+    protected function getIvoryCkEditor_ConfigManagerService()
+    {
+        return $this->services['ivory_ck_editor.config_manager'] = new \Ivory\CKEditorBundle\Model\ConfigManager();
+    }
+
+    /**
+     * Gets the 'ivory_ck_editor.form.type' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Ivory\CKEditorBundle\Form\Type\CKEditorType A Ivory\CKEditorBundle\Form\Type\CKEditorType instance.
+     */
+    protected function getIvoryCkEditor_Form_TypeService()
+    {
+        return $this->services['ivory_ck_editor.form.type'] = new \Ivory\CKEditorBundle\Form\Type\CKEditorType($this->get('ivory_ck_editor.config_manager'), $this->get('ivory_ck_editor.plugin_manager'), $this->get('ivory_ck_editor.styles_set_manager'), $this->get('ivory_ck_editor.template_manager'));
+    }
+
+    /**
+     * Gets the 'ivory_ck_editor.plugin_manager' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Ivory\CKEditorBundle\Model\PluginManager A Ivory\CKEditorBundle\Model\PluginManager instance.
+     */
+    protected function getIvoryCkEditor_PluginManagerService()
+    {
+        return $this->services['ivory_ck_editor.plugin_manager'] = new \Ivory\CKEditorBundle\Model\PluginManager();
+    }
+
+    /**
+     * Gets the 'ivory_ck_editor.renderer' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Ivory\CKEditorBundle\Renderer\CKEditorRenderer A Ivory\CKEditorBundle\Renderer\CKEditorRenderer instance.
+     */
+    protected function getIvoryCkEditor_RendererService()
+    {
+        return $this->services['ivory_ck_editor.renderer'] = new \Ivory\CKEditorBundle\Renderer\CKEditorRenderer($this);
+    }
+
+    /**
+     * Gets the 'ivory_ck_editor.styles_set_manager' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Ivory\CKEditorBundle\Model\StylesSetManager A Ivory\CKEditorBundle\Model\StylesSetManager instance.
+     */
+    protected function getIvoryCkEditor_StylesSetManagerService()
+    {
+        return $this->services['ivory_ck_editor.styles_set_manager'] = new \Ivory\CKEditorBundle\Model\StylesSetManager();
+    }
+
+    /**
+     * Gets the 'ivory_ck_editor.template_manager' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Ivory\CKEditorBundle\Model\TemplateManager A Ivory\CKEditorBundle\Model\TemplateManager instance.
+     */
+    protected function getIvoryCkEditor_TemplateManagerService()
+    {
+        return $this->services['ivory_ck_editor.template_manager'] = new \Ivory\CKEditorBundle\Model\TemplateManager();
+    }
+
+    /**
+     * Gets the 'ivory_ck_editor.twig_extension' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Ivory\CKEditorBundle\Twig\CKEditorExtension A Ivory\CKEditorBundle\Twig\CKEditorExtension instance.
+     */
+    protected function getIvoryCkEditor_TwigExtensionService()
+    {
+        return $this->services['ivory_ck_editor.twig_extension'] = new \Ivory\CKEditorBundle\Twig\CKEditorExtension($this->get('ivory_ck_editor.renderer'));
     }
 
     /**
@@ -2474,7 +2605,7 @@ class appDevDebugProjectContainer extends Container
         $o = new \Symfony\Component\Security\Http\Authentication\DefaultAuthenticationFailureHandler($e, $l, array(), $a);
         $o->setOptions(array('login_path' => '/login', 'failure_path' => NULL, 'failure_forward' => false, 'failure_path_parameter' => '_failure_path'));
 
-        return $this->services['security.firewall.map.context.main'] = new \Symfony\Bundle\SecurityBundle\Security\FirewallContext(array(0 => new \Symfony\Component\Security\Http\Firewall\ChannelListener($k, new \Symfony\Component\Security\Http\EntryPoint\RetryAuthenticationEntryPoint(80, 443), $a), 1 => new \Symfony\Component\Security\Http\Firewall\ContextListener($b, array(0 => new \Symfony\Component\Security\Core\User\InMemoryUserProvider(), 1 => $this->get('fos_user.user_provider.username')), 'main', $a, $c), 2 => $m, 3 => new \Symfony\Component\Security\Http\Firewall\UsernamePasswordFormAuthenticationListener($b, $f, $this->get('security.authentication.session_strategy'), $l, 'main', $n, $o, array('check_path' => '/login_check', 'use_forward' => false, 'require_previous_session' => true, 'username_parameter' => '_username', 'password_parameter' => '_password', 'csrf_parameter' => '_csrf_token', 'csrf_token_id' => 'authenticate', 'post_only' => true), $a, $c, $this->get('security.csrf.token_manager')), 4 => new \Symfony\Component\Security\Http\Firewall\AnonymousAuthenticationListener($b, '5773ededc79e67.84141527', $a, $f), 5 => new \Symfony\Component\Security\Http\Firewall\AccessListener($b, $this->get('security.access.decision_manager'), $k, $f)), new \Symfony\Component\Security\Http\Firewall\ExceptionListener($b, $this->get('security.authentication.trust_resolver'), $l, 'main', new \Symfony\Component\Security\Http\EntryPoint\FormAuthenticationEntryPoint($e, $l, '/login', false), NULL, NULL, $a, false));
+        return $this->services['security.firewall.map.context.main'] = new \Symfony\Bundle\SecurityBundle\Security\FirewallContext(array(0 => new \Symfony\Component\Security\Http\Firewall\ChannelListener($k, new \Symfony\Component\Security\Http\EntryPoint\RetryAuthenticationEntryPoint(80, 443), $a), 1 => new \Symfony\Component\Security\Http\Firewall\ContextListener($b, array(0 => new \Symfony\Component\Security\Core\User\InMemoryUserProvider(), 1 => $this->get('fos_user.user_provider.username')), 'main', $a, $c), 2 => $m, 3 => new \Symfony\Component\Security\Http\Firewall\UsernamePasswordFormAuthenticationListener($b, $f, $this->get('security.authentication.session_strategy'), $l, 'main', $n, $o, array('check_path' => '/login_check', 'use_forward' => false, 'require_previous_session' => true, 'username_parameter' => '_username', 'password_parameter' => '_password', 'csrf_parameter' => '_csrf_token', 'csrf_token_id' => 'authenticate', 'post_only' => true), $a, $c, $this->get('security.csrf.token_manager')), 4 => new \Symfony\Component\Security\Http\Firewall\AnonymousAuthenticationListener($b, '578f5bde5260a4.88696230', $a, $f), 5 => new \Symfony\Component\Security\Http\Firewall\AccessListener($b, $this->get('security.access.decision_manager'), $k, $f)), new \Symfony\Component\Security\Http\Firewall\ExceptionListener($b, $this->get('security.authentication.trust_resolver'), $l, 'main', new \Symfony\Component\Security\Http\EntryPoint\FormAuthenticationEntryPoint($e, $l, '/login', false), NULL, NULL, $a, false));
     }
 
     /**
@@ -3393,7 +3524,7 @@ class appDevDebugProjectContainer extends Container
      */
     protected function getTranslator_DefaultService()
     {
-        $this->services['translator.default'] = $instance = new \Symfony\Bundle\FrameworkBundle\Translation\Translator($this, new \Symfony\Component\Translation\MessageSelector(), array('translation.loader.php' => array(0 => 'php'), 'translation.loader.yml' => array(0 => 'yml'), 'translation.loader.xliff' => array(0 => 'xlf', 1 => 'xliff'), 'translation.loader.po' => array(0 => 'po'), 'translation.loader.mo' => array(0 => 'mo'), 'translation.loader.qt' => array(0 => 'ts'), 'translation.loader.csv' => array(0 => 'csv'), 'translation.loader.res' => array(0 => 'res'), 'translation.loader.dat' => array(0 => 'dat'), 'translation.loader.ini' => array(0 => 'ini'), 'translation.loader.json' => array(0 => 'json')), array('cache_dir' => (__DIR__.'/translations'), 'debug' => true, 'resource_files' => array('sq' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sq.xlf')), 'et' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.et.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.et.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.et.yml')), 'pt' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.pt.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.pt.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.pt.yml'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.pt.yml'), 4 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.pt.xlf'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.pt.xlf')), 'ja' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ja.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.ja.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ja.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ja.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ja.yml')), 'ca' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ca.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.ca.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ca.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ca.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ca.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.ca.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.ca.xlf')), 'de' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.de.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.de.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.de.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.de.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.de.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.de.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.de.xlf')), 'ro' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ro.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.ro.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ro.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ro.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ro.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.ro.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.ro.xlf')), 'lt' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.lt.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.lt.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.lt.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.lt.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.lt.yml')), 'tr' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.tr.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.tr.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.tr.yml'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.tr.yml'), 4 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.tr.xlf'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.tr.xlf')), 'sr_Latn' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sr_Latn.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.sr_Latn.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.sr_Latn.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.sr_Latn.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.sr_Latn.yml')), 'sr_Cyrl' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sr_Cyrl.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.sr_Cyrl.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.sr_Cyrl.xlf')), 'zh_CN' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.zh_CN.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.zh_CN.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.zh_CN.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.zh_CN.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.zh_CN.yml')), 'hu' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.hu.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.hu.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.hu.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.hu.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.hu.yml')), 'es' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.es.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.es.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.es.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.es.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.es.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.es.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.es.xlf')), 'el' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.el.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.el.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.el.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.el.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.el.yml')), 'pt_BR' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.pt_BR.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.pt_BR.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.pt_BR.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.pt_BR.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.pt_BR.yml')), 'hr' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.hr.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.hr.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.hr.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.hr.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.hr.yml')), 'sl' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sl.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.sl.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.sl.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.sl.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.sl.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.sl.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.sl.xlf')), 'fa' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.fa.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.fa.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.fa.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.fa.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.fa.yml')), 'hy' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.hy.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.hy.xlf')), 'ar' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ar.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.ar.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ar.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ar.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ar.yml')), 'uk' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.uk.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.uk.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.uk.yml'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.uk.yml')), 'nn' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.nn.xlf')), 'fr' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.fr.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.fr.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.fr.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.fr.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.fr.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.fr.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.fr.xlf')), 'pl' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.pl.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.pl.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.pl.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.pl.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.pl.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.pl.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.pl.xlf')), 'da' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.da.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.da.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.da.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.da.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.da.yml')), 'id' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.id.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.id.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.id.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.id.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.id.yml')), 'fi' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.fi.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.fi.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.fi.yml'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.fi.yml')), 'ru' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ru.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.ru.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ru.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ru.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ru.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.ru.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.ru.xlf')), 'bg' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.bg.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.bg.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.bg.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.bg.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.bg.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.bg.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.bg.xlf')), 'it' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.it.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.it.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.it.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.it.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.it.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.it.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.it.xlf')), 'az' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.az.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.az.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.az.xlf')), 'cs' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.cs.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.cs.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.cs.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.cs.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.cs.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.cs.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.cs.xlf')), 'sv' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sv.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.sv.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.sv.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.sv.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.sv.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.sv.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.sv.xlf')), 'en' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.en.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.en.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.en.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.en.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.en.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.en.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.en.xlf')), 'mn' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.mn.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.mn.xlf')), 'no' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.no.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.no.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.no.xlf')), 'eu' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.eu.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.eu.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.eu.yml'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.eu.yml'), 4 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.eu.xlf'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.eu.xlf')), 'vi' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.vi.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.vi.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.vi.yml'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.vi.yml')), 'he' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.he.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.he.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.he.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.he.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.he.yml')), 'th' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.th.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.th.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.th.yml'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.th.yml')), 'lb' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.lb.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.lb.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.lb.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.lb.yml')), 'af' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.af.xlf'), 1 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.af.yml')), 'cy' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.cy.xlf')), 'sk' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sk.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.sk.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.sk.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.sk.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.sk.yml')), 'gl' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.gl.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.gl.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.gl.xlf')), 'nl' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.nl.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.nl.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.nl.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.nl.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.nl.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.nl.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.nl.xlf')), 'zh_TW' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.zh_TW.xlf')), 'lv' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.lv.xlf'), 1 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.lv.yml'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.lv.yml')), 'pt_PT' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.pt_PT.xlf')), 'ua' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ua.xlf')), 'ky' => array(0 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ky.yml'), 1 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ky.yml')), 'nb' => array(0 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.nb.yml'), 1 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.nb.yml')))), array());
+        $this->services['translator.default'] = $instance = new \Symfony\Bundle\FrameworkBundle\Translation\Translator($this, new \Symfony\Component\Translation\MessageSelector(), array('translation.loader.php' => array(0 => 'php'), 'translation.loader.yml' => array(0 => 'yml'), 'translation.loader.xliff' => array(0 => 'xlf', 1 => 'xliff'), 'translation.loader.po' => array(0 => 'po'), 'translation.loader.mo' => array(0 => 'mo'), 'translation.loader.qt' => array(0 => 'ts'), 'translation.loader.csv' => array(0 => 'csv'), 'translation.loader.res' => array(0 => 'res'), 'translation.loader.dat' => array(0 => 'dat'), 'translation.loader.ini' => array(0 => 'ini'), 'translation.loader.json' => array(0 => 'json')), array('cache_dir' => (__DIR__.'/translations'), 'debug' => true, 'resource_files' => array('sq' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sq.xlf')), 'et' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.et.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.et.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.et.yml')), 'pt' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.pt.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.pt.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.pt.yml'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.pt.yml'), 4 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.pt.xlf'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.pt.xlf')), 'ja' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ja.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.ja.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ja.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ja.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ja.yml')), 'ca' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ca.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.ca.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ca.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ca.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ca.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.ca.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.ca.xlf')), 'de' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.de.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.de.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.de.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.de.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.de.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.de.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.de.xlf'), 7 => ($this->targetDirs[3].'/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.de.yml')), 'ro' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ro.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.ro.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ro.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ro.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ro.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.ro.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.ro.xlf')), 'lt' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.lt.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.lt.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.lt.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.lt.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.lt.yml')), 'tr' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.tr.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.tr.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.tr.yml'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.tr.yml'), 4 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.tr.xlf'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.tr.xlf')), 'sr_Latn' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sr_Latn.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.sr_Latn.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.sr_Latn.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.sr_Latn.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.sr_Latn.yml')), 'sr_Cyrl' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sr_Cyrl.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.sr_Cyrl.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.sr_Cyrl.xlf')), 'zh_CN' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.zh_CN.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.zh_CN.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.zh_CN.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.zh_CN.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.zh_CN.yml')), 'hu' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.hu.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.hu.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.hu.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.hu.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.hu.yml')), 'es' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.es.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.es.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.es.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.es.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.es.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.es.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.es.xlf'), 7 => ($this->targetDirs[3].'/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.es.yml')), 'el' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.el.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.el.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.el.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.el.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.el.yml')), 'pt_BR' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.pt_BR.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.pt_BR.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.pt_BR.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.pt_BR.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.pt_BR.yml')), 'hr' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.hr.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.hr.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.hr.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.hr.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.hr.yml')), 'sl' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sl.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.sl.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.sl.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.sl.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.sl.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.sl.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.sl.xlf')), 'fa' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.fa.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.fa.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.fa.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.fa.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.fa.yml')), 'hy' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.hy.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.hy.xlf')), 'ar' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ar.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.ar.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ar.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ar.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ar.yml'), 5 => ($this->targetDirs[3].'/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.ar.yml')), 'uk' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.uk.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.uk.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.uk.yml'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.uk.yml'), 4 => ($this->targetDirs[3].'/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.uk.yml')), 'nn' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.nn.xlf')), 'fr' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.fr.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.fr.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.fr.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.fr.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.fr.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.fr.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.fr.xlf'), 7 => ($this->targetDirs[3].'/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.fr.yml')), 'pl' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.pl.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.pl.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.pl.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.pl.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.pl.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.pl.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.pl.xlf'), 7 => ($this->targetDirs[3].'/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.pl.yml')), 'da' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.da.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.da.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.da.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.da.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.da.yml')), 'id' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.id.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.id.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.id.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.id.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.id.yml')), 'fi' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.fi.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.fi.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.fi.yml'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.fi.yml')), 'ru' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ru.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.ru.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ru.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ru.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ru.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.ru.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.ru.xlf'), 7 => ($this->targetDirs[3].'/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.ru.yml')), 'bg' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.bg.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.bg.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.bg.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.bg.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.bg.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.bg.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.bg.xlf')), 'it' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.it.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.it.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.it.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.it.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.it.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.it.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.it.xlf')), 'az' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.az.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.az.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.az.xlf')), 'cs' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.cs.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.cs.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.cs.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.cs.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.cs.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.cs.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.cs.xlf')), 'sv' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sv.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.sv.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.sv.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.sv.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.sv.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.sv.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.sv.xlf')), 'en' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.en.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.en.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.en.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.en.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.en.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.en.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.en.xlf'), 7 => ($this->targetDirs[3].'/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.en.yml')), 'mn' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.mn.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.mn.xlf')), 'no' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.no.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.no.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.no.xlf')), 'eu' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.eu.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.eu.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.eu.yml'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.eu.yml'), 4 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.eu.xlf'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.eu.xlf')), 'vi' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.vi.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.vi.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.vi.yml'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.vi.yml')), 'he' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.he.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.he.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.he.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.he.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.he.yml')), 'th' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.th.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.th.xlf'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.th.yml'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.th.yml')), 'lb' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.lb.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.lb.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.lb.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.lb.yml')), 'af' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.af.xlf'), 1 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.af.yml')), 'cy' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.cy.xlf')), 'sk' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sk.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.sk.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.sk.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.sk.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.sk.yml')), 'gl' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.gl.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.gl.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.gl.xlf')), 'nl' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.nl.xlf'), 1 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.nl.xlf'), 2 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.nl.xlf'), 3 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.nl.yml'), 4 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.nl.yml'), 5 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.nl.xlf'), 6 => ($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.nl.xlf')), 'zh_TW' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.zh_TW.xlf')), 'lv' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/translations/validators.lv.xlf'), 1 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.lv.yml'), 2 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.lv.yml')), 'pt_PT' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.pt_PT.xlf')), 'ua' => array(0 => ($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ua.xlf')), 'ky' => array(0 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ky.yml'), 1 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ky.yml')), 'nb' => array(0 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.nb.yml'), 1 => ($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.nb.yml')))), array());
 
         $instance->setConfigCacheFactory($this->get('config_cache_factory'));
         $instance->setFallbackLocales(array(0 => 'en'));
@@ -3442,7 +3573,7 @@ class appDevDebugProjectContainer extends Container
         }
         $f->setContainer($this);
 
-        $this->services['twig'] = $instance = new \Twig_Environment($this->get('twig.loader'), array('debug' => true, 'strict_variables' => true, 'exception_controller' => 'twig.controller.exception:showAction', 'form_themes' => array(0 => 'form_div_layout.html.twig'), 'autoescape' => 'filename', 'cache' => (__DIR__.'/twig'), 'charset' => 'UTF-8', 'paths' => array(), 'date' => array('format' => 'F j, Y H:i', 'interval_format' => '%d days', 'timezone' => NULL), 'number_format' => array('decimals' => 0, 'decimal_point' => '.', 'thousands_separator' => ',')));
+        $this->services['twig'] = $instance = new \Twig_Environment($this->get('twig.loader'), array('debug' => true, 'strict_variables' => true, 'form_themes' => array(0 => 'form_div_layout.html.twig'), 'exception_controller' => 'twig.controller.exception:showAction', 'autoescape' => 'filename', 'cache' => (__DIR__.'/twig'), 'charset' => 'UTF-8', 'paths' => array(), 'date' => array('format' => 'F j, Y H:i', 'interval_format' => '%d days', 'timezone' => NULL), 'number_format' => array('decimals' => 0, 'decimal_point' => '.', 'thousands_separator' => ',')));
 
         $instance->addExtension(new \Symfony\Bridge\Twig\Extension\LogoutUrlExtension($this->get('security.logout_url_generator')));
         $instance->addExtension(new \Symfony\Bridge\Twig\Extension\SecurityExtension($this->get('security.authorization_checker', ContainerInterface::NULL_ON_INVALID_REFERENCE)));
@@ -3457,10 +3588,12 @@ class appDevDebugProjectContainer extends Container
         $instance->addExtension(new \Symfony\Bridge\Twig\Extension\ExpressionExtension());
         $instance->addExtension(new \Symfony\Bridge\Twig\Extension\HttpKernelExtension($d));
         $instance->addExtension($e);
-        $instance->addExtension(new \Symfony\Bridge\Twig\Extension\FormExtension(new \Symfony\Bridge\Twig\Form\TwigRenderer(new \Symfony\Bridge\Twig\Form\TwigRendererEngine(array(0 => 'form_div_layout.html.twig')), $this->get('security.csrf.token_manager', ContainerInterface::NULL_ON_INVALID_REFERENCE))));
+        $instance->addExtension(new \Symfony\Bridge\Twig\Extension\FormExtension(new \Symfony\Bridge\Twig\Form\TwigRenderer(new \Symfony\Bridge\Twig\Form\TwigRendererEngine(array(0 => 'IvoryCKEditorBundle:Form:ckeditor_widget.html.twig', 1 => 'form_div_layout.html.twig')), $this->get('security.csrf.token_manager', ContainerInterface::NULL_ON_INVALID_REFERENCE))));
         $instance->addExtension(new \Twig_Extension_Debug());
         $instance->addExtension(new \Doctrine\Bundle\DoctrineBundle\Twig\DoctrineExtension());
         $instance->addExtension(new \JavierEguiluz\Bundle\EasyAdminBundle\Twig\EasyAdminTwigExtension($this->get('easyadmin.config.manager'), $this->get('property_accessor'), true));
+        $instance->addExtension(new \Vich\UploaderBundle\Twig\Extension\UploaderExtension($this->get('vich_uploader.templating.helper.uploader_helper')));
+        $instance->addExtension($this->get('ivory_ck_editor.twig_extension'));
         $instance->addExtension(new \Symfony\Bridge\Twig\Extension\DumpExtension($this->get('var_dumper.cloner')));
         $instance->addExtension(new \Symfony\Bundle\WebProfilerBundle\Twig\WebProfilerExtension());
         $instance->addGlobal('app', $f);
@@ -3525,8 +3658,11 @@ class appDevDebugProjectContainer extends Container
         $instance->addPath(($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Bundle/TwigBundle/Resources/views'), 'Twig');
         $instance->addPath(($this->targetDirs[3].'/vendor/symfony/swiftmailer-bundle/Resources/views'), 'Swiftmailer');
         $instance->addPath(($this->targetDirs[3].'/vendor/doctrine/doctrine-bundle/Resources/views'), 'Doctrine');
+        $instance->addPath(($this->targetDirs[2].'/Resources/FOSUserBundle/views'), 'FOSUser');
         $instance->addPath(($this->targetDirs[3].'/vendor/friendsofsymfony/user-bundle/Resources/views'), 'FOSUser');
         $instance->addPath(($this->targetDirs[3].'/vendor/javiereguiluz/easyadmin-bundle/Resources/views'), 'EasyAdmin');
+        $instance->addPath(($this->targetDirs[3].'/vendor/vich/uploader-bundle/Resources/views'), 'VichUploader');
+        $instance->addPath(($this->targetDirs[3].'/vendor/egeloen/ckeditor-bundle/Resources/views'), 'IvoryCKEditor');
         $instance->addPath(($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/views'), 'Debug');
         $instance->addPath(($this->targetDirs[3].'/vendor/symfony/symfony/src/Symfony/Bundle/WebProfilerBundle/Resources/views'), 'WebProfiler');
         $instance->addPath(($this->targetDirs[2].'/Resources/views'));
@@ -3666,6 +3802,157 @@ class appDevDebugProjectContainer extends Container
         $instance->setMaxString(-1);
 
         return $instance;
+    }
+
+    /**
+     * Gets the 'vich_uploader.download_handler' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @param bool    $lazyLoad whether to try lazy-loading the service with a proxy
+     *
+     * @return \Vich\UploaderBundle\Handler\DownloadHandler A Vich\UploaderBundle\Handler\DownloadHandler instance.
+     */
+    public function getVichUploader_DownloadHandlerService($lazyLoad = true)
+    {
+        if ($lazyLoad) {
+            $container = $this;
+
+            return $this->services['vich_uploader.download_handler'] = new VichUploaderBundleHandlerDownloadHandler_000000007ab1f13100007f41733be8096a466ebb7a5e74712684db12751ea4c8(
+                function (&$wrappedInstance, \ProxyManager\Proxy\LazyLoadingInterface $proxy) use ($container) {
+                    $wrappedInstance = $container->getVichUploader_DownloadHandlerService(false);
+
+                    $proxy->setProxyInitializer(null);
+
+                    return true;
+                }
+            );
+        }
+
+        return new \Vich\UploaderBundle\Handler\DownloadHandler($this->get('vich_uploader.property_mapping_factory'), $this->get('vich_uploader.storage'));
+    }
+
+    /**
+     * Gets the 'vich_uploader.form.type.file' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Vich\UploaderBundle\Form\Type\VichFileType A Vich\UploaderBundle\Form\Type\VichFileType instance.
+     */
+    protected function getVichUploader_Form_Type_FileService()
+    {
+        return $this->services['vich_uploader.form.type.file'] = new \Vich\UploaderBundle\Form\Type\VichFileType($this->get('vich_uploader.storage'), $this->get('vich_uploader.upload_handler'), $this->get('translator'));
+    }
+
+    /**
+     * Gets the 'vich_uploader.form.type.image' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Vich\UploaderBundle\Form\Type\VichImageType A Vich\UploaderBundle\Form\Type\VichImageType instance.
+     */
+    protected function getVichUploader_Form_Type_ImageService()
+    {
+        return $this->services['vich_uploader.form.type.image'] = new \Vich\UploaderBundle\Form\Type\VichImageType($this->get('vich_uploader.storage'), $this->get('vich_uploader.upload_handler'), $this->get('translator'));
+    }
+
+    /**
+     * Gets the 'vich_uploader.namer_origname' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Vich\UploaderBundle\Naming\OrignameNamer A Vich\UploaderBundle\Naming\OrignameNamer instance.
+     */
+    protected function getVichUploader_NamerOrignameService()
+    {
+        return $this->services['vich_uploader.namer_origname'] = new \Vich\UploaderBundle\Naming\OrignameNamer();
+    }
+
+    /**
+     * Gets the 'vich_uploader.namer_property' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Vich\UploaderBundle\Naming\PropertyNamer A Vich\UploaderBundle\Naming\PropertyNamer instance.
+     */
+    protected function getVichUploader_NamerPropertyService()
+    {
+        return $this->services['vich_uploader.namer_property'] = new \Vich\UploaderBundle\Naming\PropertyNamer();
+    }
+
+    /**
+     * Gets the 'vich_uploader.namer_uniqid' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Vich\UploaderBundle\Naming\UniqidNamer A Vich\UploaderBundle\Naming\UniqidNamer instance.
+     */
+    protected function getVichUploader_NamerUniqidService()
+    {
+        return $this->services['vich_uploader.namer_uniqid'] = new \Vich\UploaderBundle\Naming\UniqidNamer();
+    }
+
+    /**
+     * Gets the 'vich_uploader.storage' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Vich\UploaderBundle\Storage\FileSystemStorage A Vich\UploaderBundle\Storage\FileSystemStorage instance.
+     */
+    protected function getVichUploader_StorageService()
+    {
+        return $this->services['vich_uploader.storage'] = new \Vich\UploaderBundle\Storage\FileSystemStorage($this->get('vich_uploader.property_mapping_factory'));
+    }
+
+    /**
+     * Gets the 'vich_uploader.templating.helper.uploader_helper' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @return \Vich\UploaderBundle\Templating\Helper\UploaderHelper A Vich\UploaderBundle\Templating\Helper\UploaderHelper instance.
+     */
+    protected function getVichUploader_Templating_Helper_UploaderHelperService()
+    {
+        return $this->services['vich_uploader.templating.helper.uploader_helper'] = new \Vich\UploaderBundle\Templating\Helper\UploaderHelper($this->get('vich_uploader.storage'));
+    }
+
+    /**
+     * Gets the 'vich_uploader.upload_handler' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * @param bool    $lazyLoad whether to try lazy-loading the service with a proxy
+     *
+     * @return \Vich\UploaderBundle\Handler\UploadHandler A Vich\UploaderBundle\Handler\UploadHandler instance.
+     */
+    public function getVichUploader_UploadHandlerService($lazyLoad = true)
+    {
+        if ($lazyLoad) {
+            $container = $this;
+
+            return $this->services['vich_uploader.upload_handler'] = new VichUploaderBundleHandlerUploadHandler_000000007ab1f13c00007f41733be8096a466ebb7a5e74712684db12751ea4c8(
+                function (&$wrappedInstance, \ProxyManager\Proxy\LazyLoadingInterface $proxy) use ($container) {
+                    $wrappedInstance = $container->getVichUploader_UploadHandlerService(false);
+
+                    $proxy->setProxyInitializer(null);
+
+                    return true;
+                }
+            );
+        }
+
+        $a = $this->get('vich_uploader.storage');
+
+        return new \Vich\UploaderBundle\Handler\UploadHandler($this->get('vich_uploader.property_mapping_factory'), $a, new \Vich\UploaderBundle\Injector\FileInjector($a), $this->get('debug.event_dispatcher'));
     }
 
     /**
@@ -3843,7 +4130,7 @@ class appDevDebugProjectContainer extends Container
      */
     protected function getSecurity_Authentication_ManagerService()
     {
-        $this->services['security.authentication.manager'] = $instance = new \Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager(array(0 => new \Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationProvider($this->get('fos_user.user_provider.username'), $this->get('security.user_checker.main'), 'main', $this->get('security.encoder_factory'), true), 1 => new \Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider('5773ededc79e67.84141527')), true);
+        $this->services['security.authentication.manager'] = $instance = new \Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager(array(0 => new \Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationProvider($this->get('fos_user.user_provider.username'), $this->get('security.user_checker.main'), 'main', $this->get('security.encoder_factory'), true), 1 => new \Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider('578f5bde5260a4.88696230')), true);
 
         $instance->setEventDispatcher($this->get('debug.event_dispatcher'));
 
@@ -3974,6 +4261,45 @@ class appDevDebugProjectContainer extends Container
     }
 
     /**
+     * Gets the 'vich_uploader.metadata_reader' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * This service is private.
+     * If you want to be able to request this service from the container directly,
+     * make it public, otherwise you might end up with broken code.
+     *
+     * @return \Vich\UploaderBundle\Metadata\MetadataReader A Vich\UploaderBundle\Metadata\MetadataReader instance.
+     */
+    protected function getVichUploader_MetadataReaderService()
+    {
+        $a = new \Vich\UploaderBundle\Metadata\Driver\FileLocator(array());
+
+        $b = new \Metadata\MetadataFactory(new \Vich\UploaderBundle\Metadata\Driver\ChainDriver(array(0 => new \Vich\UploaderBundle\Metadata\Driver\AnnotationDriver($this->get('annotation_reader')), 1 => new \Vich\UploaderBundle\Metadata\Driver\YamlDriver($a), 2 => new \Vich\UploaderBundle\Metadata\Driver\XmlDriver($a))), 'Metadata\\ClassHierarchyMetadata', true);
+        $b->setCache(new \Metadata\Cache\FileCache((__DIR__.'/vich_uploader')));
+
+        return $this->services['vich_uploader.metadata_reader'] = new \Vich\UploaderBundle\Metadata\MetadataReader($b);
+    }
+
+    /**
+     * Gets the 'vich_uploader.property_mapping_factory' service.
+     *
+     * This service is shared.
+     * This method always returns the same instance of the service.
+     *
+     * This service is private.
+     * If you want to be able to request this service from the container directly,
+     * make it public, otherwise you might end up with broken code.
+     *
+     * @return \Vich\UploaderBundle\Mapping\PropertyMappingFactory A Vich\UploaderBundle\Mapping\PropertyMappingFactory instance.
+     */
+    protected function getVichUploader_PropertyMappingFactoryService()
+    {
+        return $this->services['vich_uploader.property_mapping_factory'] = new \Vich\UploaderBundle\Mapping\PropertyMappingFactory($this, $this->get('vich_uploader.metadata_reader'), array('product_images' => array('uri_prefix' => '/my_project/web/uploads/images/products/', 'upload_destination' => ($this->targetDirs[2].'/../web/uploads/images/products'), 'namer' => array('service' => NULL, 'options' => NULL), 'directory_namer' => NULL, 'delete_on_remove' => true, 'delete_on_update' => true, 'inject_on_load' => false, 'db_driver' => 'orm')), '_name');
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getParameter($name)
@@ -4042,6 +4368,8 @@ class appDevDebugProjectContainer extends Container
                 'AppBundle' => 'AppBundle\\AppBundle',
                 'FOSUserBundle' => 'FOS\\UserBundle\\FOSUserBundle',
                 'EasyAdminBundle' => 'JavierEguiluz\\Bundle\\EasyAdminBundle\\EasyAdminBundle',
+                'VichUploaderBundle' => 'Vich\\UploaderBundle\\VichUploaderBundle',
+                'IvoryCKEditorBundle' => 'Ivory\\CKEditorBundle\\IvoryCKEditorBundle',
                 'DebugBundle' => 'Symfony\\Bundle\\DebugBundle\\DebugBundle',
                 'WebProfilerBundle' => 'Symfony\\Bundle\\WebProfilerBundle\\WebProfilerBundle',
                 'SensioDistributionBundle' => 'Sensio\\Bundle\\DistributionBundle\\SensioDistributionBundle',
@@ -4060,6 +4388,7 @@ class appDevDebugProjectContainer extends Container
             'mailer_password' => NULL,
             'secret' => 'c3c84700f24f9408850eb70cc2b1df14496b7f2f',
             'locale' => 'fr',
+            'app.path.product_images' => '/my_project/web/uploads/images/products/',
             'controller_resolver.class' => 'Symfony\\Bundle\\FrameworkBundle\\Controller\\ControllerResolver',
             'controller_name_converter.class' => 'Symfony\\Bundle\\FrameworkBundle\\Controller\\ControllerNameParser',
             'response_listener.class' => 'Symfony\\Component\\HttpKernel\\EventListener\\ResponseListener',
@@ -4330,7 +4659,8 @@ class appDevDebugProjectContainer extends Container
             'twig.controller.preview_error.class' => 'Symfony\\Bundle\\TwigBundle\\Controller\\PreviewErrorController',
             'twig.exception_listener.controller' => 'twig.controller.exception:showAction',
             'twig.form.resources' => array(
-                0 => 'form_div_layout.html.twig',
+                0 => 'IvoryCKEditorBundle:Form:ckeditor_widget.html.twig',
+                1 => 'form_div_layout.html.twig',
             ),
             'monolog.logger.class' => 'Symfony\\Bridge\\Monolog\\Logger',
             'monolog.gelf.publisher.class' => 'Gelf\\MessagePublisher',
@@ -4558,7 +4888,7 @@ class appDevDebugProjectContainer extends Container
             'fos_user.firewall_name' => 'main',
             'fos_user.model_manager_name' => NULL,
             'fos_user.model.user.class' => 'AppBundle\\Entity\\User',
-            'fos_user.profile.form.type' => 'FOS\\UserBundle\\Form\\Type\\ProfileFormType',
+            'fos_user.profile.form.type' => 'AppBundle\\Form\\ProfileType',
             'fos_user.profile.form.name' => 'fos_user_profile_form',
             'fos_user.profile.form.validation_groups' => array(
                 0 => 'Profile',
@@ -4568,7 +4898,7 @@ class appDevDebugProjectContainer extends Container
                 'webmaster@example.com' => 'webmaster',
             ),
             'fos_user.registration.confirmation.enabled' => false,
-            'fos_user.registration.form.type' => 'FOS\\UserBundle\\Form\\Type\\RegistrationFormType',
+            'fos_user.registration.form.type' => 'AppBundle\\Form\\RegistrationType',
             'fos_user.registration.form.name' => 'fos_user_registration_form',
             'fos_user.registration.form.validation_groups' => array(
                 0 => 'Registration',
@@ -4592,33 +4922,14 @@ class appDevDebugProjectContainer extends Container
             ),
             'easyadmin.config' => array(
                 'site_name' => 'AranApp',
-                'entities' => array(
-                    'User' => array(
-                        'class' => 'AppBundle\\Entity\\User',
-                        'form' => array(
-                            'fields' => array(
-                                0 => 'enabled',
-                                1 => 'username',
-                                2 => 'nom',
-                                3 => 'email',
-                            ),
-                        ),
-                        'list' => array(
-                            'fields' => array(
-                                0 => 'id',
-                                1 => 'enabled',
-                                2 => 'nom',
-                                3 => 'username',
-                                4 => 'email',
-                            ),
-                        ),
-                        'name' => 'User',
-                    ),
-                ),
                 'design' => array(
+                    'form_theme' => array(
+                        0 => '@EasyAdmin/form/bootstrap_3_layout.html.twig',
+                    ),
+                    'color_scheme' => 'dark',
                     'assets' => array(
                         'css' => array(
-
+                            0 => '/bundles/app/stylesheets/demo.css',
                         ),
                         'js' => array(
 
@@ -4628,14 +4939,499 @@ class appDevDebugProjectContainer extends Container
                             'mime_type' => 'image/x-icon',
                         ),
                     ),
-                    'theme' => 'default',
-                    'color_scheme' => 'dark',
-                    'brand_color' => '#205081',
-                    'form_theme' => array(
-                        0 => '@EasyAdmin/form/bootstrap_3_horizontal_layout.html.twig',
-                    ),
                     'menu' => array(
-
+                        0 => array(
+                            'label' => 'Menu Gestion',
+                            'icon' => 'th-list',
+                            'children' => array(
+                                0 => array(
+                                    'entity' => 'User',
+                                    'icon' => 'female',
+                                    'label' => 'Hôtesse',
+                                    'params' => array(
+                                        'sortField' => 'createdAt',
+                                    ),
+                                    'default' => true,
+                                ),
+                                1 => array(
+                                    'entity' => 'Evenement',
+                                    'icon' => 'calendar',
+                                    'label' => 'Événement',
+                                ),
+                            ),
+                        ),
+                        1 => array(
+                            'label' => 'Créé par Pierre Flamant',
+                        ),
+                    ),
+                    'theme' => 'default',
+                    'brand_color' => '#205081',
+                ),
+                'entities' => array(
+                    'Evenement' => array(
+                        'class' => 'AppBundle\\Entity\\Evenement',
+                        'label' => 'Événement',
+                        'list' => array(
+                            'title' => '%entity_label%',
+                            'actions' => array(
+                                0 => array(
+                                    'name' => 'show',
+                                    'label' => '',
+                                    'icon' => 'search',
+                                ),
+                                1 => array(
+                                    'name' => 'edit',
+                                    'label' => '',
+                                    'icon' => 'edit',
+                                ),
+                                2 => array(
+                                    'name' => 'delete',
+                                    'label' => '',
+                                    'icon' => 'trash',
+                                ),
+                            ),
+                            'fields' => array(
+                                0 => 'id',
+                                1 => array(
+                                    'property' => 'name',
+                                    'label' => 'Nom',
+                                ),
+                                2 => array(
+                                    'property' => 'parent',
+                                    'label' => 'Evenement parent',
+                                ),
+                                3 => 'users',
+                            ),
+                        ),
+                        'show' => array(
+                            'fields' => array(
+                                0 => 'id',
+                                1 => array(
+                                    'property' => 'name',
+                                    'label' => 'Nom',
+                                    'css_class' => 'large',
+                                ),
+                                2 => array(
+                                    'property' => 'parent',
+                                    'label' => 'Evenement parent',
+                                ),
+                                3 => 'users',
+                            ),
+                        ),
+                        'form' => array(
+                            'fields' => array(
+                                0 => array(
+                                    'property' => 'name',
+                                    'label' => 'Nom',
+                                    'css_class' => 'col-sm-12 large',
+                                ),
+                                1 => array(
+                                    'property' => 'parent',
+                                    'label' => 'Evenement parent',
+                                    'type' => 'easyadmin_autocomplete',
+                                ),
+                            ),
+                        ),
+                        'name' => 'Evenement',
+                    ),
+                    'User' => array(
+                        'class' => 'AppBundle\\Entity\\User',
+                        'label' => 'Hôtesse',
+                        'list' => array(
+                            'title' => '%entity_label%',
+                            'actions' => array(
+                                0 => array(
+                                    'name' => 'show',
+                                    'label' => '',
+                                    'icon' => 'search',
+                                ),
+                                1 => array(
+                                    'name' => 'edit',
+                                    'label' => '',
+                                    'icon' => 'edit',
+                                ),
+                                2 => array(
+                                    'name' => 'delete',
+                                    'label' => '',
+                                    'icon' => 'trash',
+                                ),
+                            ),
+                            'fields' => array(
+                                0 => array(
+                                    'property' => 'enabled',
+                                    'label' => 'Avis',
+                                ),
+                                1 => array(
+                                    'property' => 'image',
+                                    'type' => 'image',
+                                    'label' => 'Photo',
+                                    'base_path' => '/my_project/web/uploads/images/products/',
+                                ),
+                                2 => array(
+                                    'property' => 'name',
+                                    'label' => 'Nom',
+                                ),
+                                3 => array(
+                                    'property' => 'prenom',
+                                    'label' => 'Prenom',
+                                ),
+                                4 => array(
+                                    'property' => 'ville',
+                                    'label' => 'Ville',
+                                ),
+                                5 => array(
+                                    'property' => 'telport',
+                                    'label' => 'Portable',
+                                ),
+                                6 => array(
+                                    'property' => 'permis',
+                                    'label' => 'Permis',
+                                ),
+                                7 => array(
+                                    'property' => 'voiture',
+                                    'label' => 'Voiture',
+                                ),
+                                8 => array(
+                                    'property' => 'createdAt',
+                                    'format' => 'j / M / Y',
+                                    'label' => 'Crée le',
+                                ),
+                            ),
+                        ),
+                        'show' => array(
+                            'fields' => array(
+                                0 => array(
+                                    'property' => 'enabled',
+                                    'label' => 'Avis',
+                                ),
+                                1 => array(
+                                    'property' => 'image',
+                                    'type' => 'image',
+                                    'label' => 'Photo',
+                                    'base_path' => '/my_project/web/uploads/images/products/',
+                                ),
+                                2 => array(
+                                    'property' => 'name',
+                                    'label' => 'Nom',
+                                ),
+                                3 => array(
+                                    'property' => 'prenom',
+                                    'label' => 'Prenom',
+                                ),
+                                4 => array(
+                                    'property' => 'ville',
+                                    'label' => 'Ville',
+                                ),
+                                5 => array(
+                                    'property' => 'permis',
+                                    'label' => 'Permis',
+                                ),
+                                6 => array(
+                                    'property' => 'voiture',
+                                    'label' => 'Voiture',
+                                ),
+                                7 => array(
+                                    'property' => 'createdAt',
+                                    'format' => 'j / M / Y',
+                                    'label' => 'Crée le',
+                                ),
+                                8 => array(
+                                    'property' => 'name',
+                                    'css_class' => 'large',
+                                ),
+                                9 => array(
+                                    'property' => 'image',
+                                    'type' => 'image',
+                                    'base_path' => '/my_project/web/uploads/images/products/',
+                                ),
+                                10 => 'evenements',
+                                11 => 'tags',
+                            ),
+                        ),
+                        'form' => array(
+                            'fields' => array(
+                                0 => array(
+                                    'property' => 'poste',
+                                    'label' => 'Poste recherché',
+                                    'type' => 'choice',
+                                    'type_options' => array(
+                                        'choices' => array(
+                                            'Evenementiel' => 'Evenementiel',
+                                            'CDI' => 'CDI',
+                                        ),
+                                    ),
+                                    'css_class' => 'col-sm-8',
+                                ),
+                                1 => array(
+                                    'property' => 'imageFile',
+                                    'label' => 'Photo',
+                                    'type' => 'Vich\\UploaderBundle\\Form\\Type\\VichImageType',
+                                    'css_class' => 'col-sm-4',
+                                ),
+                                2 => array(
+                                    'property' => 'name',
+                                    'label' => 'Nom',
+                                    'css_class' => 'col-sm-5',
+                                ),
+                                3 => array(
+                                    'property' => 'nomjeunefille',
+                                    'label' => 'Nom de jeune fille',
+                                    'css_class' => 'col-sm-4',
+                                ),
+                                4 => array(
+                                    'property' => 'prenom',
+                                    'label' => 'Prenom',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                5 => array(
+                                    'property' => 'adresse',
+                                    'label' => 'Adresse',
+                                    'css_class' => 'col-sm-7',
+                                ),
+                                6 => array(
+                                    'property' => 'codepostal',
+                                    'label' => 'Code Postal',
+                                    'css_class' => 'col-sm-2',
+                                ),
+                                7 => array(
+                                    'property' => 'ville',
+                                    'label' => 'Ville',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                8 => array(
+                                    'property' => 'email',
+                                    'label' => 'Adresse E-mail',
+                                    'css_class' => 'col-sm-6',
+                                ),
+                                9 => array(
+                                    'property' => 'telfixe',
+                                    'label' => 'Téléphone fixe',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                10 => array(
+                                    'property' => 'telport',
+                                    'label' => 'Téléphone portable',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                11 => array(
+                                    'property' => 'datenaissance',
+                                    'label' => 'Date de naissance',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                12 => array(
+                                    'property' => 'lieunaissance',
+                                    'label' => 'Lieux et département de naissance',
+                                    'css_class' => 'col-sm-9',
+                                ),
+                                13 => array(
+                                    'property' => 'secu',
+                                    'label' => 'Numéro de sécurité social',
+                                    'css_class' => 'col-sm-6',
+                                ),
+                                14 => array(
+                                    'property' => 'nationalite',
+                                    'label' => 'Nationalité',
+                                    'css_class' => 'col-sm-6',
+                                ),
+                                15 => array(
+                                    'property' => 'cartedesejour',
+                                    'label' => 'Numéro de carte de séjour',
+                                    'css_class' => 'col-sm-5',
+                                ),
+                                16 => array(
+                                    'property' => 'delivreepar',
+                                    'label' => 'Délivrée par la préfecture de',
+                                    'css_class' => 'col-sm-4',
+                                ),
+                                17 => array(
+                                    'property' => 'dateexpiration',
+                                    'label' => 'Date d\'expiration',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                18 => array(
+                                    'property' => 'situation',
+                                    'label' => 'Situation Familiale',
+                                    'type' => 'choice',
+                                    'type_options' => array(
+                                        'choices' => array(
+                                            'Célibataire' => 'Célibataire',
+                                            'Marié(e)' => 'Marié(e)',
+                                            'Concubin(e)' => 'Concubin(e)',
+                                        ),
+                                    ),
+                                    'css_class' => 'col-sm-4',
+                                ),
+                                19 => array(
+                                    'property' => 'obligationemploi',
+                                    'label' => 'Cocher cette case si vous êtes bénéficiaire de l’obligation d’emploi selon l’article L. 5212-13 du Code du travail',
+                                    'css_class' => 'col-sm-8',
+                                ),
+                                20 => array(
+                                    'property' => 'tags',
+                                    'help' => 'Cliquer sur "Ajouter un nouvel élément" pour ajouter une langue',
+                                    'label' => 'Langues parlées (+niveau entre parenthèse)',
+                                    'css_class' => 'col-sm-12',
+                                ),
+                                21 => array(
+                                    'property' => 'niveauetude',
+                                    'label' => 'Niveau d\'étude',
+                                    'css_class' => 'col-sm-12',
+                                ),
+                                22 => array(
+                                    'property' => 'permis',
+                                    'label' => 'Permis de conduire',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                23 => array(
+                                    'property' => 'voiture',
+                                    'label' => 'Voiture',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                24 => array(
+                                    'property' => 'dateobtention',
+                                    'label' => 'Date d\'obtention',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                25 => array(
+                                    'property' => 'prefecture',
+                                    'label' => 'Préfecture',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                26 => array(
+                                    'property' => 'taille',
+                                    'label' => 'Taille (cm)',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                27 => array(
+                                    'property' => 'taillejupe',
+                                    'label' => 'Taille jupe/pantalon',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                28 => array(
+                                    'property' => 'tourpoitrine',
+                                    'label' => 'Tour de poitrine',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                29 => array(
+                                    'property' => 'tailleveste',
+                                    'label' => 'Taille de veste',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                30 => array(
+                                    'property' => 'pointure',
+                                    'label' => 'Pointure chaussures',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                31 => array(
+                                    'property' => 'couleurcheveux',
+                                    'label' => 'Couleur de cheveux',
+                                    'css_class' => 'col-sm-4',
+                                ),
+                                32 => array(
+                                    'property' => 'couleuryeux',
+                                    'label' => 'Couleur des yeux',
+                                    'css_class' => 'col-sm-4',
+                                ),
+                                33 => array(
+                                    'property' => 'experiencehote',
+                                    'label' => 'Cocher la case si vous avez déjà eu une expérience d\'hôte(sse)',
+                                    'css_class' => 'col-sm-5',
+                                ),
+                                34 => array(
+                                    'property' => 'experiencehotedetail',
+                                    'label' => 'Si oui, laquelle',
+                                    'type' => 'Ivory\\CKEditorBundle\\Form\\Type\\CKEditorType',
+                                    'css_class' => 'col-sm-7',
+                                ),
+                                35 => array(
+                                    'property' => 'bar',
+                                    'label' => 'Bar',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                36 => array(
+                                    'property' => 'animation',
+                                    'label' => 'Animation',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                37 => array(
+                                    'property' => 'micro',
+                                    'label' => 'Passage de micros',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                38 => array(
+                                    'property' => 'vente',
+                                    'label' => 'Vente',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                39 => array(
+                                    'property' => 'service',
+                                    'label' => 'Service assiette / plateau',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                40 => array(
+                                    'property' => 'distribution',
+                                    'label' => 'Distribution prospectus',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                41 => array(
+                                    'property' => 'traduction',
+                                    'label' => 'Traduction',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                42 => array(
+                                    'property' => 'saisie',
+                                    'label' => 'Saisie informatique',
+                                    'css_class' => 'col-sm-3',
+                                ),
+                                43 => array(
+                                    'property' => 'commentconnuagence',
+                                    'label' => 'Comment avez-vous connu notre agence ?',
+                                    'css_class' => 'col-sm-12',
+                                ),
+                                44 => array(
+                                    'property' => 'disponibilite',
+                                    'label' => 'Disponibilité',
+                                    'type' => 'choice',
+                                    'type_options' => array(
+                                        'choices' => array(
+                                            'Totale' => 'Totale',
+                                            'Soirs' => 'Soirs',
+                                            'Week-end' => 'Week-end',
+                                            'Journée' => 'Journée',
+                                        ),
+                                    ),
+                                    'css_class' => 'col-sm-4',
+                                ),
+                                45 => array(
+                                    'property' => 'dispojourshoraires',
+                                    'label' => 'En semaine (précisez les jours et horaires)',
+                                    'type' => 'Ivory\\CKEditorBundle\\Form\\Type\\CKEditorType',
+                                    'css_class' => 'col-sm-8',
+                                ),
+                                46 => array(
+                                    'property' => 'villehebergement',
+                                    'help' => 'Cliquer sur "Ajouter un nouvel élément" pour ajouter une ville',
+                                    'label' => 'Ville dans lesquelles vous pouvez être hébergée en France',
+                                    'css_class' => 'col-sm-12',
+                                ),
+                                47 => array(
+                                    'property' => 'personneaprevenir',
+                                    'label' => 'Personne à prévenir en cas d\'accident',
+                                    'css_class' => 'col-sm-6',
+                                ),
+                                48 => array(
+                                    'property' => 'adressetelaccident',
+                                    'label' => 'Adresse et téléphone',
+                                    'css_class' => 'col-sm-6',
+                                ),
+                                49 => array(
+                                    'property' => 'evenements',
+                                    'css_class' => 'col-sm-12',
+                                    'type' => 'easyadmin_autocomplete',
+                                ),
+                            ),
+                        ),
+                        'name' => 'User',
                     ),
                 ),
                 'formats' => array(
@@ -4669,6 +5465,23 @@ class appDevDebugProjectContainer extends Container
                 ),
             ),
             'easyadmin.cache.dir' => (__DIR__.'/easy_admin'),
+            'vich_uploader.default_filename_attribute_suffix' => '_name',
+            'vich_uploader.mappings' => array(
+                'product_images' => array(
+                    'uri_prefix' => '/my_project/web/uploads/images/products/',
+                    'upload_destination' => ($this->targetDirs[2].'/../web/uploads/images/products'),
+                    'namer' => array(
+                        'service' => NULL,
+                        'options' => NULL,
+                    ),
+                    'directory_namer' => NULL,
+                    'delete_on_remove' => true,
+                    'delete_on_update' => true,
+                    'inject_on_load' => false,
+                    'db_driver' => 'orm',
+                ),
+            ),
+            'vich_uploader.file_injector.class' => 'Vich\\UploaderBundle\\Injector\\FileInjector',
             'web_profiler.controller.profiler.class' => 'Symfony\\Bundle\\WebProfilerBundle\\Controller\\ProfilerController',
             'web_profiler.controller.router.class' => 'Symfony\\Bundle\\WebProfilerBundle\\Controller\\RouterController',
             'web_profiler.controller.exception.class' => 'Symfony\\Bundle\\WebProfilerBundle\\Controller\\ExceptionController',
@@ -4752,4 +5565,474 @@ class appDevDebugProjectContainer extends Container
             ),
         );
     }
+}
+
+class VichUploaderBundleHandlerDownloadHandler_000000007ab1f13100007f41733be8096a466ebb7a5e74712684db12751ea4c8 extends \Vich\UploaderBundle\Handler\DownloadHandler implements \ProxyManager\Proxy\VirtualProxyInterface
+{
+
+    /**
+     * @var \Closure|null initializer responsible for generating the wrapped object
+     */
+    private $valueHolder578f5bdebfb19968084271 = null;
+
+    /**
+     * @var \Closure|null initializer responsible for generating the wrapped object
+     */
+    private $initializer578f5bdebfb2d025461653 = null;
+
+    /**
+     * @var bool[] map of public properties of the parent class
+     */
+    private static $publicProperties578f5bdebfaea649527935 = array(
+        
+    );
+
+    /**
+     * {@inheritDoc}
+     */
+    public function downloadObject($object, $field, $className = null, $fileName = null)
+    {
+        $this->initializer578f5bdebfb2d025461653 && $this->initializer578f5bdebfb2d025461653->__invoke($this->valueHolder578f5bdebfb19968084271, $this, 'downloadObject', array('object' => $object, 'field' => $field, 'className' => $className, 'fileName' => $fileName), $this->initializer578f5bdebfb2d025461653);
+
+        return $this->valueHolder578f5bdebfb19968084271->downloadObject($object, $field, $className, $fileName);
+    }
+
+    /**
+     * @override constructor for lazy initialization
+     *
+     * @param \Closure|null $initializer
+     */
+    public function __construct($initializer)
+    {
+        $this->initializer578f5bdebfb2d025461653 = $initializer;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function & __get($name)
+    {
+        $this->initializer578f5bdebfb2d025461653 && $this->initializer578f5bdebfb2d025461653->__invoke($this->valueHolder578f5bdebfb19968084271, $this, '__get', array('name' => $name), $this->initializer578f5bdebfb2d025461653);
+
+        if (isset(self::$publicProperties578f5bdebfaea649527935[$name])) {
+            return $this->valueHolder578f5bdebfb19968084271->$name;
+        }
+
+        $realInstanceReflection = new \ReflectionClass(get_parent_class($this));
+
+        if (! $realInstanceReflection->hasProperty($name)) {
+            $targetObject = $this->valueHolder578f5bdebfb19968084271;
+
+            $backtrace = debug_backtrace(false);
+            trigger_error('Undefined property: ' . get_parent_class($this) . '::$' . $name . ' in ' . $backtrace[0]['file'] . ' on line ' . $backtrace[0]['line'], \E_USER_NOTICE);
+            return $targetObject->$name;;
+            return;
+        }
+
+        $targetObject = $this->valueHolder578f5bdebfb19968084271;
+        $accessor = function & () use ($targetObject, $name) {
+            return $targetObject->$name;
+        };
+            $backtrace = debug_backtrace(true);
+            $scopeObject = isset($backtrace[1]['object']) ? $backtrace[1]['object'] : new \stdClass();
+            $accessor = $accessor->bindTo($scopeObject, get_class($scopeObject));
+        $returnValue = & $accessor();
+
+        return $returnValue;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
+    public function __set($name, $value)
+    {
+        $this->initializer578f5bdebfb2d025461653 && $this->initializer578f5bdebfb2d025461653->__invoke($this->valueHolder578f5bdebfb19968084271, $this, '__set', array('name' => $name, 'value' => $value), $this->initializer578f5bdebfb2d025461653);
+
+        $realInstanceReflection = new \ReflectionClass(get_parent_class($this));
+
+        if (! $realInstanceReflection->hasProperty($name)) {
+            $targetObject = $this->valueHolder578f5bdebfb19968084271;
+
+            return $targetObject->$name = $value;;
+            return;
+        }
+
+        $targetObject = $this->valueHolder578f5bdebfb19968084271;
+        $accessor = function & () use ($targetObject, $name, $value) {
+            return $targetObject->$name = $value;
+        };
+            $backtrace = debug_backtrace(true);
+            $scopeObject = isset($backtrace[1]['object']) ? $backtrace[1]['object'] : new \stdClass();
+            $accessor = $accessor->bindTo($scopeObject, get_class($scopeObject));
+        $returnValue = & $accessor();
+
+        return $returnValue;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function __isset($name)
+    {
+        $this->initializer578f5bdebfb2d025461653 && $this->initializer578f5bdebfb2d025461653->__invoke($this->valueHolder578f5bdebfb19968084271, $this, '__isset', array('name' => $name), $this->initializer578f5bdebfb2d025461653);
+
+        $realInstanceReflection = new \ReflectionClass(get_parent_class($this));
+
+        if (! $realInstanceReflection->hasProperty($name)) {
+            $targetObject = $this->valueHolder578f5bdebfb19968084271;
+
+            return isset($targetObject->$name);;
+            return;
+        }
+
+        $targetObject = $this->valueHolder578f5bdebfb19968084271;
+        $accessor = function () use ($targetObject, $name) {
+            return isset($targetObject->$name);
+        };
+            $backtrace = debug_backtrace(true);
+            $scopeObject = isset($backtrace[1]['object']) ? $backtrace[1]['object'] : new \stdClass();
+            $accessor = $accessor->bindTo($scopeObject, get_class($scopeObject));
+        $returnValue = $accessor();
+
+        return $returnValue;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function __unset($name)
+    {
+        $this->initializer578f5bdebfb2d025461653 && $this->initializer578f5bdebfb2d025461653->__invoke($this->valueHolder578f5bdebfb19968084271, $this, '__unset', array('name' => $name), $this->initializer578f5bdebfb2d025461653);
+
+        $realInstanceReflection = new \ReflectionClass(get_parent_class($this));
+
+        if (! $realInstanceReflection->hasProperty($name)) {
+            $targetObject = $this->valueHolder578f5bdebfb19968084271;
+
+            unset($targetObject->$name);;
+            return;
+        }
+
+        $targetObject = $this->valueHolder578f5bdebfb19968084271;
+        $accessor = function () use ($targetObject, $name) {
+            unset($targetObject->$name);
+        };
+            $backtrace = debug_backtrace(true);
+            $scopeObject = isset($backtrace[1]['object']) ? $backtrace[1]['object'] : new \stdClass();
+            $accessor = $accessor->bindTo($scopeObject, get_class($scopeObject));
+        $returnValue = $accessor();
+
+        return $returnValue;
+    }
+
+    public function __clone()
+    {
+        $this->initializer578f5bdebfb2d025461653 && $this->initializer578f5bdebfb2d025461653->__invoke($this->valueHolder578f5bdebfb19968084271, $this, '__clone', array(), $this->initializer578f5bdebfb2d025461653);
+
+        $this->valueHolder578f5bdebfb19968084271 = clone $this->valueHolder578f5bdebfb19968084271;
+    }
+
+    public function __sleep()
+    {
+        $this->initializer578f5bdebfb2d025461653 && $this->initializer578f5bdebfb2d025461653->__invoke($this->valueHolder578f5bdebfb19968084271, $this, '__sleep', array(), $this->initializer578f5bdebfb2d025461653);
+
+        return array('valueHolder578f5bdebfb19968084271');
+    }
+
+    public function __wakeup()
+    {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setProxyInitializer(\Closure $initializer = null)
+    {
+        $this->initializer578f5bdebfb2d025461653 = $initializer;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getProxyInitializer()
+    {
+        return $this->initializer578f5bdebfb2d025461653;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function initializeProxy()
+    {
+        return $this->initializer578f5bdebfb2d025461653 && $this->initializer578f5bdebfb2d025461653->__invoke($this->valueHolder578f5bdebfb19968084271, $this, 'initializeProxy', array(), $this->initializer578f5bdebfb2d025461653);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isProxyInitialized()
+    {
+        return null !== $this->valueHolder578f5bdebfb19968084271;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getWrappedValueHolderValue()
+    {
+        return $this->valueHolder578f5bdebfb19968084271;
+    }
+
+
+}
+
+class VichUploaderBundleHandlerUploadHandler_000000007ab1f13c00007f41733be8096a466ebb7a5e74712684db12751ea4c8 extends \Vich\UploaderBundle\Handler\UploadHandler implements \ProxyManager\Proxy\VirtualProxyInterface
+{
+
+    /**
+     * @var \Closure|null initializer responsible for generating the wrapped object
+     */
+    private $valueHolder578f5bdec06bb007798714 = null;
+
+    /**
+     * @var \Closure|null initializer responsible for generating the wrapped object
+     */
+    private $initializer578f5bdec06ce745076444 = null;
+
+    /**
+     * @var bool[] map of public properties of the parent class
+     */
+    private static $publicProperties578f5bdec0686764369879 = array(
+        
+    );
+
+    /**
+     * {@inheritDoc}
+     */
+    public function upload($obj, $fieldName)
+    {
+        $this->initializer578f5bdec06ce745076444 && $this->initializer578f5bdec06ce745076444->__invoke($this->valueHolder578f5bdec06bb007798714, $this, 'upload', array('obj' => $obj, 'fieldName' => $fieldName), $this->initializer578f5bdec06ce745076444);
+
+        return $this->valueHolder578f5bdec06bb007798714->upload($obj, $fieldName);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function inject($obj, $fieldName)
+    {
+        $this->initializer578f5bdec06ce745076444 && $this->initializer578f5bdec06ce745076444->__invoke($this->valueHolder578f5bdec06bb007798714, $this, 'inject', array('obj' => $obj, 'fieldName' => $fieldName), $this->initializer578f5bdec06ce745076444);
+
+        return $this->valueHolder578f5bdec06bb007798714->inject($obj, $fieldName);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function clean($obj, $fieldName)
+    {
+        $this->initializer578f5bdec06ce745076444 && $this->initializer578f5bdec06ce745076444->__invoke($this->valueHolder578f5bdec06bb007798714, $this, 'clean', array('obj' => $obj, 'fieldName' => $fieldName), $this->initializer578f5bdec06ce745076444);
+
+        return $this->valueHolder578f5bdec06bb007798714->clean($obj, $fieldName);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function remove($obj, $fieldName)
+    {
+        $this->initializer578f5bdec06ce745076444 && $this->initializer578f5bdec06ce745076444->__invoke($this->valueHolder578f5bdec06bb007798714, $this, 'remove', array('obj' => $obj, 'fieldName' => $fieldName), $this->initializer578f5bdec06ce745076444);
+
+        return $this->valueHolder578f5bdec06bb007798714->remove($obj, $fieldName);
+    }
+
+    /**
+     * @override constructor for lazy initialization
+     *
+     * @param \Closure|null $initializer
+     */
+    public function __construct($initializer)
+    {
+        $this->initializer578f5bdec06ce745076444 = $initializer;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function & __get($name)
+    {
+        $this->initializer578f5bdec06ce745076444 && $this->initializer578f5bdec06ce745076444->__invoke($this->valueHolder578f5bdec06bb007798714, $this, '__get', array('name' => $name), $this->initializer578f5bdec06ce745076444);
+
+        if (isset(self::$publicProperties578f5bdec0686764369879[$name])) {
+            return $this->valueHolder578f5bdec06bb007798714->$name;
+        }
+
+        $realInstanceReflection = new \ReflectionClass(get_parent_class($this));
+
+        if (! $realInstanceReflection->hasProperty($name)) {
+            $targetObject = $this->valueHolder578f5bdec06bb007798714;
+
+            $backtrace = debug_backtrace(false);
+            trigger_error('Undefined property: ' . get_parent_class($this) . '::$' . $name . ' in ' . $backtrace[0]['file'] . ' on line ' . $backtrace[0]['line'], \E_USER_NOTICE);
+            return $targetObject->$name;;
+            return;
+        }
+
+        $targetObject = $this->valueHolder578f5bdec06bb007798714;
+        $accessor = function & () use ($targetObject, $name) {
+            return $targetObject->$name;
+        };
+            $backtrace = debug_backtrace(true);
+            $scopeObject = isset($backtrace[1]['object']) ? $backtrace[1]['object'] : new \stdClass();
+            $accessor = $accessor->bindTo($scopeObject, get_class($scopeObject));
+        $returnValue = & $accessor();
+
+        return $returnValue;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
+    public function __set($name, $value)
+    {
+        $this->initializer578f5bdec06ce745076444 && $this->initializer578f5bdec06ce745076444->__invoke($this->valueHolder578f5bdec06bb007798714, $this, '__set', array('name' => $name, 'value' => $value), $this->initializer578f5bdec06ce745076444);
+
+        $realInstanceReflection = new \ReflectionClass(get_parent_class($this));
+
+        if (! $realInstanceReflection->hasProperty($name)) {
+            $targetObject = $this->valueHolder578f5bdec06bb007798714;
+
+            return $targetObject->$name = $value;;
+            return;
+        }
+
+        $targetObject = $this->valueHolder578f5bdec06bb007798714;
+        $accessor = function & () use ($targetObject, $name, $value) {
+            return $targetObject->$name = $value;
+        };
+            $backtrace = debug_backtrace(true);
+            $scopeObject = isset($backtrace[1]['object']) ? $backtrace[1]['object'] : new \stdClass();
+            $accessor = $accessor->bindTo($scopeObject, get_class($scopeObject));
+        $returnValue = & $accessor();
+
+        return $returnValue;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function __isset($name)
+    {
+        $this->initializer578f5bdec06ce745076444 && $this->initializer578f5bdec06ce745076444->__invoke($this->valueHolder578f5bdec06bb007798714, $this, '__isset', array('name' => $name), $this->initializer578f5bdec06ce745076444);
+
+        $realInstanceReflection = new \ReflectionClass(get_parent_class($this));
+
+        if (! $realInstanceReflection->hasProperty($name)) {
+            $targetObject = $this->valueHolder578f5bdec06bb007798714;
+
+            return isset($targetObject->$name);;
+            return;
+        }
+
+        $targetObject = $this->valueHolder578f5bdec06bb007798714;
+        $accessor = function () use ($targetObject, $name) {
+            return isset($targetObject->$name);
+        };
+            $backtrace = debug_backtrace(true);
+            $scopeObject = isset($backtrace[1]['object']) ? $backtrace[1]['object'] : new \stdClass();
+            $accessor = $accessor->bindTo($scopeObject, get_class($scopeObject));
+        $returnValue = $accessor();
+
+        return $returnValue;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function __unset($name)
+    {
+        $this->initializer578f5bdec06ce745076444 && $this->initializer578f5bdec06ce745076444->__invoke($this->valueHolder578f5bdec06bb007798714, $this, '__unset', array('name' => $name), $this->initializer578f5bdec06ce745076444);
+
+        $realInstanceReflection = new \ReflectionClass(get_parent_class($this));
+
+        if (! $realInstanceReflection->hasProperty($name)) {
+            $targetObject = $this->valueHolder578f5bdec06bb007798714;
+
+            unset($targetObject->$name);;
+            return;
+        }
+
+        $targetObject = $this->valueHolder578f5bdec06bb007798714;
+        $accessor = function () use ($targetObject, $name) {
+            unset($targetObject->$name);
+        };
+            $backtrace = debug_backtrace(true);
+            $scopeObject = isset($backtrace[1]['object']) ? $backtrace[1]['object'] : new \stdClass();
+            $accessor = $accessor->bindTo($scopeObject, get_class($scopeObject));
+        $returnValue = $accessor();
+
+        return $returnValue;
+    }
+
+    public function __clone()
+    {
+        $this->initializer578f5bdec06ce745076444 && $this->initializer578f5bdec06ce745076444->__invoke($this->valueHolder578f5bdec06bb007798714, $this, '__clone', array(), $this->initializer578f5bdec06ce745076444);
+
+        $this->valueHolder578f5bdec06bb007798714 = clone $this->valueHolder578f5bdec06bb007798714;
+    }
+
+    public function __sleep()
+    {
+        $this->initializer578f5bdec06ce745076444 && $this->initializer578f5bdec06ce745076444->__invoke($this->valueHolder578f5bdec06bb007798714, $this, '__sleep', array(), $this->initializer578f5bdec06ce745076444);
+
+        return array('valueHolder578f5bdec06bb007798714');
+    }
+
+    public function __wakeup()
+    {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setProxyInitializer(\Closure $initializer = null)
+    {
+        $this->initializer578f5bdec06ce745076444 = $initializer;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getProxyInitializer()
+    {
+        return $this->initializer578f5bdec06ce745076444;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function initializeProxy()
+    {
+        return $this->initializer578f5bdec06ce745076444 && $this->initializer578f5bdec06ce745076444->__invoke($this->valueHolder578f5bdec06bb007798714, $this, 'initializeProxy', array(), $this->initializer578f5bdec06ce745076444);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isProxyInitialized()
+    {
+        return null !== $this->valueHolder578f5bdec06bb007798714;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getWrappedValueHolderValue()
+    {
+        return $this->valueHolder578f5bdec06bb007798714;
+    }
+
+
 }

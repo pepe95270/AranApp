@@ -1,0 +1,34 @@
+# This file sets the configuration of the 'Category' entity.
+#
+# NOTE: this demo application splits the backend configuration into several
+# small files for educational purposes. In your application you can put the
+# entire backend configuration in just one file.
+#
+# The configuration options are explained in detail in the bundle documentation,
+# which is published at https://github.com/javiereguiluz/EasyAdminBundle
+easy_admin:
+    entities:
+        Evenement:
+            class: AppBundle\Entity\Evenement
+            label: 'Événement'
+            list:
+                title: '%%entity_label%%'
+                actions:
+                    - { name: 'show', label: '', icon: 'search' }
+                    - { name: 'edit', label: '', icon: 'edit' }
+                    - { name: 'delete', label: '', icon: 'trash' }
+                fields:
+                    - 'id'
+                    - { property: 'name', label: 'Nom' }
+                    - { property: 'parent', label: 'Evenement parent' }
+                    - 'users'
+            show:
+                fields:
+                    - 'id'
+                    - { property: 'name', label: 'Nom', css_class: 'large' }
+                    - { property: 'parent', label: 'Evenement parent' }
+                    - 'users'
+            form:
+                fields:
+                    - { property: 'name', label: 'Nom', css_class: 'col-sm-12 large' }
+                    - { property: 'parent', label: 'Evenement parent', type: 'easyadmin_autocomplete' }
