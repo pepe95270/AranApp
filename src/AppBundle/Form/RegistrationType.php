@@ -125,7 +125,7 @@ class RegistrationType extends AbstractType
             'label'  => 'Cocher la case si vous avez déjà eu une expérience d\'hôte(sse)',
         ));
         $builder->add('experiencehotedetail', null, array(
-            'label'  => 'Si oui, laquelle',
+            'label'  => "Détailler votre expérience et cocher les cases si vous avez occupé l'un des postes suivants",
         ));
         $builder->add('bar', null, array(
             'label'  => 'Bar',
@@ -153,18 +153,6 @@ class RegistrationType extends AbstractType
         ));
         $builder->add('commentconnuagence', null, array(
             'label'  => 'Comment avez-vous connu notre agence ?',
-        ));
-        $builder->add('disponibilite', 'Symfony\Component\Form\Extension\Core\Type\ChoiceType', array(
-            'choices'  => array(
-                'Totale' => 'Totale',
-                'Soirs' => 'Soirs',
-                'Week-end' => 'Week-end',
-                'Journée' => 'Journée',
-            ),
-            'label'  => 'Disponibilité',
-        ));
-        $builder->add('dispojourshoraires', null, array(
-            'label'  => 'En semaine (précisez les jours et horaires)',
         ));
         $builder->add('villehebergement', 'Symfony\Component\Form\Extension\Core\Type\CollectionType', array(
             'entry_type'   => TextType::class,

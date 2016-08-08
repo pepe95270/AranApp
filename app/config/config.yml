@@ -37,7 +37,7 @@ twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
     form_themes:
-        - 'form_div_layout.html.twig'
+        - 'bootstrap_3_layout.html.twig'
 
 # Doctrine Configuration
 doctrine:
@@ -86,3 +86,12 @@ vich_uploader:
         product_images:
             uri_prefix: %app.path.product_images%
             upload_destination: %kernel.root_dir%/../web/uploads/images/products
+
+blade_tester_calendar:
+    driver: doctrine/orm
+    engine: twig
+    classes:
+        event:
+            entity: MyCalendarBundle\Entity\Event
+        category:
+            entity: BladeTester\CalendarBundle\Entity\EventCategory

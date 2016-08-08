@@ -33,21 +33,57 @@ easy_admin:
                     - { property: 'createdAt', format: 'j / M / Y', label: 'Crée le' }
             show:
                 fields:
-                    - { property: 'enabled', label: 'Avis' }
-                    - { property: 'image', type: 'image', label: 'Photo', base_path: %app.path.product_images% }
+                    - { property: 'evenements' }
+                    - { property: 'poste', label: 'Poste recherché' }
+                    - { property: 'image', label: 'Photo', type: 'image', base_path: %app.path.product_images% }
                     - { property: 'name', label: 'Nom' }
+                    - { property: 'nomjeunefille', label: 'Nom de jeune fille' }
                     - { property: 'prenom', label: 'Prenom' }
+                    - { property: 'adresse', label: 'Adresse' }
+                    - { property: 'codepostal', label: 'Code Postal' }
                     - { property: 'ville', label: 'Ville' }
-                    - { property: 'permis', label: 'Permis' }
-                    - { property: 'voiture', label: 'Voiture' }
-                    - { property: 'createdAt', format: 'j / M / Y', label: 'Crée le' }
-
-                    - { property: 'name', css_class: 'large' }
-                    - { property: 'image', type: 'image', base_path: %app.path.product_images% }
-                    - evenements
-                    - tags
+                    - { property: 'email', label: 'Adresse E-mail' }
+                    - { property: 'telfixe', label: 'Téléphone fixe' }
+                    - { property: 'telport', label: 'Téléphone portable' }
+                    - { property: 'datenaissance', label: 'Date de naissance' }
+                    - { property: 'lieunaissance', label: 'Lieux et département de naissance' }
+                    - { property: 'secu', label: 'Numéro de sécurité social' }
+                    - { property: 'nationalite', label: 'Nationalité' }
+                    - { property: 'cartedesejour', label: 'Numéro de carte de séjour' }
+                    - { property: 'delivreepar', label: 'Délivrée par la préfecture de' }
+                    - { property: 'dateexpiration', label: "Date d'expiration" }
+                    - { property: 'situation', label: 'Situation Familiale' }
+                    - { property: 'obligationemploi', label: "Bénéficiaire de l’obligation d’emploi selon l’article L. 5212-13 du Code du travail" }
+                    - { property: 'tags', label: 'Langues parlées (+niveau entre parenthèse)' }
+                    - { property: 'niveauetude', label: "Niveau d'étude" }
+                    - { property: 'permis', label: "Permis de conduire" }
+                    - { property: 'voiture', label: "Voiture" }
+                    - { property: 'dateobtention', label: "Date d'obtention" }
+                    - { property: 'prefecture', label: "Préfecture" }
+                    - { property: 'taille', label: "Taille (cm)" }
+                    - { property: 'taillejupe', label: "Taille jupe/pantalon" }
+                    - { property: 'tourpoitrine', label: "Tour de poitrine" }
+                    - { property: 'tailleveste', label: "Taille de veste" }
+                    - { property: 'pointure', label: "Pointure chaussures" }
+                    - { property: 'couleurcheveux', label: "Couleur de cheveux" }
+                    - { property: 'couleuryeux', label: "Couleur des yeux" }
+                    - { property: 'experiencehote', label: "Expérience d'hôte(sse)" }
+                    - { property: 'experiencehotedetail', label: 'Si oui, laquelle?' }
+                    - { property: 'bar', label: "Bar" }
+                    - { property: 'animation', label: "Animation" }
+                    - { property: 'micro', label: "Passage de micros" }
+                    - { property: 'vente', label: "Vente" }
+                    - { property: 'service', label: "Service assiette / plateau" }
+                    - { property: 'distribution', label: "Distribution prospectus" }
+                    - { property: 'traduction', label: "Traduction" }
+                    - { property: 'saisie', label: "Saisie informatique" }
+                    - { property: 'commentconnuagence', label: "Comment avez-vous connu notre agence ?" }
+                    - { property: 'villehebergement', label: 'Ville dans lesquelles vous pouvez être hébergée en France' }
+                    - { property: 'personneaprevenir', label: "Personne à prévenir en cas d'accident" }
+                    - { property: 'adressetelaccident', label: "Adresse et téléphone" }
             form:
                 fields:
+                    - { property: 'evenements', css_class: 'col-sm-12', type: 'easyadmin_autocomplete' }
                     - { property: 'poste', label: 'Poste recherché', type: 'choice', type_options: { choices: { 'Evenementiel': 'Evenementiel', 'CDI': 'CDI' } },css_class: 'col-sm-8' }
                     - { property: 'imageFile', label: 'Photo', type: 'Vich\UploaderBundle\Form\Type\VichImageType',  css_class: 'col-sm-4' }
                     - { property: 'name', label: 'Nom', css_class: 'col-sm-5' }
@@ -92,9 +128,6 @@ easy_admin:
                     - { property: 'traduction', label: "Traduction", css_class: 'col-sm-3' }
                     - { property: 'saisie', label: "Saisie informatique", css_class: 'col-sm-3' }
                     - { property: 'commentconnuagence', label: "Comment avez-vous connu notre agence ?", css_class: 'col-sm-12' }
-                    - { property: 'disponibilite', label: 'Disponibilité', type: 'choice', type_options: { choices: { 'Totale': 'Totale', 'Soirs': 'Soirs', 'Week-end': 'Week-end', 'Journée': 'Journée'} },css_class: 'col-sm-4' }
-                    - { property: 'dispojourshoraires', label: 'En semaine (précisez les jours et horaires)', type: 'Ivory\CKEditorBundle\Form\Type\CKEditorType', css_class: 'col-sm-8' }
                     - { property: 'villehebergement', help: 'Cliquer sur "Ajouter un nouvel élément" pour ajouter une ville', label: 'Ville dans lesquelles vous pouvez être hébergée en France', css_class: 'col-sm-12' }
                     - { property: 'personneaprevenir', label: "Personne à prévenir en cas d'accident", css_class: 'col-sm-6' }
                     - { property: 'adressetelaccident', label: "Adresse et téléphone", css_class: 'col-sm-6' }
-                    - { property: 'evenements', css_class: 'col-sm-12', type: 'easyadmin_autocomplete' }

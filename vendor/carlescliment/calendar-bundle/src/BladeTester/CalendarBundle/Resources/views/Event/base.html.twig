@@ -1,0 +1,33 @@
+{% extends 'BladeTesterCalendarBundle:Base:base.html.twig' %}
+
+{% block body %}
+    <h1 class="main-title">Mes disponibilités</h1>
+
+
+    <nav class="list-options">
+        <ul class="list-inline column w-20">
+            <li>
+                <a id="calendar-event-add-btn" href="{{ path('calendar_event_add') }}?destination={{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')) }}&year={{ current|date('Y') }}&month={{ current|date('m') }}&day={{ current|date('d') }}" class="btn btn-primary">Ajouter une disponibilité</a>
+            </li>
+        </ul>
+        <ul class="list-inline column w-80 t-align-right">
+            <li><a class="btn" href="#" onclick="window.print();return false;">{{ 'bladetester_calendar.label.print'|trans }}</a></li>
+        </ul>
+    </nav>
+
+    <section class="main-content">
+        <div class="schedule">
+            <section class="schedule-nav">
+                {% block calendar_date_selector %}
+                {% endblock %}
+                {% block calendar_sidebar %}
+                    {% render(controller('BladeTesterCalendarBundle:Calendar:showMini', { year : "now"|date('Y'), month: "now"|date('m') })) %}
+                {% endblock %}
+            </section>
+
+            {% block calendar_body %}
+            {% endblock %}
+        </div>
+    </section>
+{% endblock %}
+

@@ -20,6 +20,10 @@ class AppKernel extends Kernel
             new JavierEguiluz\Bundle\EasyAdminBundle\EasyAdminBundle(),
             new Vich\UploaderBundle\VichUploaderBundle(),
             new Ivory\CKEditorBundle\IvoryCKEditorBundle(),
+            new APY\DataGridBundle\APYDataGridBundle(),
+            new FOS\JsRoutingBundle\FOSJsRoutingBundle(),
+            new MyCalendarBundle\MyCalendarBundle(),
+            new BladeTester\CalendarBundle\BladeTesterCalendarBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {

@@ -7,6 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 use FOS\UserBundle\Model\User as BaseUser;
 use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use APY\DataGridBundle\Grid\Mapping as GRID;
+
 
 /**
  * User
@@ -14,6 +16,8 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * @ORM\Table(name="user")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
  * @Vich\Uploadable
+ * @GRID\Source(columns="id, enabled, createdAt, poste, name, prenom, codepostal, datenaissance, nationalite, obligationemploi, tags, situation, permis, voiture, deuxroues, roller, taille, taillejupe, couleurcheveux, couleuryeux, tourpoitrine, experiencehote, bar, animation, micro, vente, service, distribution, traduction, saisie, villehebergement, event.start, event.end, event.category.name", groups={"avecdispo"})
+ * @GRID\Source(columns="id, enabled, createdAt, poste, name, prenom, codepostal, datenaissance, nationalite, obligationemploi, tags, situation, permis, voiture, deuxroues, roller, taille, taillejupe, couleurcheveux, couleuryeux, tourpoitrine, experiencehote, bar, animation, micro, vente, service, distribution, traduction, saisie, villehebergement", groups={"sansdispo"})
  */
 class User extends BaseUser
 {
@@ -32,6 +36,7 @@ class User extends BaseUser
      *
      * @var \DateTime
      * @ORM\Column(type="date", name="created_at", nullable=true)
+     * @GRID\Column(title="Crée le (JJ-MM-AAAA)", defaultOperator="btwe")
      */
     private $createdAt = null;
 
@@ -39,6 +44,7 @@ class User extends BaseUser
      *
      * @var string
      * @ORM\Column(type="string")
+     * @GRID\Column(title="Poste demandé", filter="select",  selectFrom="values", values={"CDI"="CDI","Evenementiel"="Evenementiel"}, defaultOperator="eq")
      */
     private $poste;
 
@@ -62,6 +68,7 @@ class User extends BaseUser
      *
      * @var string
      * @ORM\Column(type="string")
+     * @GRID\Column(title="Code postal")
      */
     private $codepostal;
 
@@ -69,6 +76,7 @@ class User extends BaseUser
      *
      * @var string
      * @ORM\Column(type="string")
+     * @GRID\Column(title="Ville")
      */
     private $ville;
 
@@ -91,6 +99,7 @@ class User extends BaseUser
      *
      * @var \DateTime
      * @ORM\Column(type="date", name="datenaissance")
+     * @GRID\Column(title="Date de naissance (JJ-MM-AAAA)", defaultOperator="btwe")
      */
     private $datenaissance = null;
 
@@ -112,6 +121,7 @@ class User extends BaseUser
      *
      * @var string
      * @ORM\Column(type="string")
+     * @GRID\Column(title="Nationalité")
      */
     private $nationalite;
 
@@ -141,6 +151,7 @@ class User extends BaseUser
      *
      * @var string
      * @ORM\Column(type="string")
+     * @GRID\Column(title="Situation familiale", filter="select",  selectFrom="values", values={"Célibataire"="Célibataire","Marié(e)"="Marié(e)","Concubin(e)"="Concubin(e)"}, defaultOperator="eq")
      */
     private $situation;
 
@@ -148,14 +159,16 @@ class User extends BaseUser
      *
      * @var bool
      * @ORM\Column(type="boolean")
+     * @GRID\Column(title="Article L. 5212-13")
      */
     private $obligationemploi = false;
 
     /**
      * List langues (niveau)
      *
-     * @var string[]
-     * @ORM\Column(type="simple_array", nullable=true)
+     * @var array
+     * @ORM\Column(type="array", nullable=true)
+     * @GRID\Column(title="Langue(s) parlée(s)")
      */
     private $tags = array();
 
@@ -172,6 +185,7 @@ class User extends BaseUser
      *
      * @var bool
      * @ORM\Column(type="boolean")
+     * @GRID\Column(title="Permis")
      */
     private $permis = false;
 
@@ -179,6 +193,7 @@ class User extends BaseUser
      *
      * @var bool
      * @ORM\Column(type="boolean")
+     * @GRID\Column(title="Voiture")
      */
     private $voiture = false;
 
@@ -201,6 +216,7 @@ class User extends BaseUser
      *
      * @var bool
      * @ORM\Column(type="boolean")
+     * @GRID\Column(title="Deux roues")
      */
     private $deuxroues = false;
 
@@ -208,6 +224,7 @@ class User extends BaseUser
      *
      * @var bool
      * @ORM\Column(type="boolean")
+     * @GRID\Column(title="Roller")
      */
     private $roller = false;
 
@@ -215,6 +232,7 @@ class User extends BaseUser
      *
      * @var int
      * @ORM\Column(type="integer")
+     * @GRID\Column(title="Taille (cm)", defaultOperator="btwe")
      */
     private $taille;
 
@@ -222,6 +240,7 @@ class User extends BaseUser
      *
      * @var int
      * @ORM\Column(type="integer", nullable=true)
+     * @GRID\Column(title="Taille de jupe", defaultOperator="btwe")
      */
     private $taillejupe;
 
@@ -229,6 +248,7 @@ class User extends BaseUser
      *
      * @var string
      * @ORM\Column(type="string")
+     * @GRID\Column(title="Couleur de cheveux")
      */
     private $couleurcheveux;
 
@@ -236,6 +256,7 @@ class User extends BaseUser
      *
      * @var string
      * @ORM\Column(type="string")
+     * @GRID\Column(title="Couleur des yeux")
      */
     private $couleuryeux;
 
@@ -243,6 +264,7 @@ class User extends BaseUser
      *
      * @var int
      * @ORM\Column(type="integer", nullable=true)
+     * @GRID\Column(title="Tour de poitrine", defaultOperator="btwe")
      */
     private $tourpoitrine;
 
@@ -264,6 +286,7 @@ class User extends BaseUser
      *
      * @var bool
      * @ORM\Column(type="boolean")
+     * @GRID\Column(title="Experience en tant qu'hôte(sse)")
      */
     private $experiencehote = false;
 
@@ -278,6 +301,7 @@ class User extends BaseUser
      *
      * @var bool
      * @ORM\Column(type="boolean")
+     * @GRID\Column(title="Bar")
      */
     private $bar = false;
 
@@ -285,6 +309,7 @@ class User extends BaseUser
      *
      * @var bool
      * @ORM\Column(type="boolean")
+     * @GRID\Column(title="Animation")
      */
     private $animation = false;
 
@@ -292,6 +317,7 @@ class User extends BaseUser
      *
      * @var bool
      * @ORM\Column(type="boolean")
+     * @GRID\Column(title="Micro")
      */
     private $micro = false;
 
@@ -299,6 +325,7 @@ class User extends BaseUser
      *
      * @var bool
      * @ORM\Column(type="boolean")
+     * @GRID\Column(title="Vente")
      */
     private $vente = false;
 
@@ -306,6 +333,7 @@ class User extends BaseUser
      *
      * @var bool
      * @ORM\Column(type="boolean")
+     * @GRID\Column(title="Service")
      */
     private $service = false;
 
@@ -313,6 +341,7 @@ class User extends BaseUser
      *
      * @var bool
      * @ORM\Column(type="boolean")
+     * @GRID\Column(title="Distribution")
      */
     private $distribution = false;
 
@@ -320,6 +349,7 @@ class User extends BaseUser
      *
      * @var bool
      * @ORM\Column(type="boolean")
+     * @GRID\Column(title="Traduction")
      */
     private $traduction = false;
 
@@ -327,6 +357,7 @@ class User extends BaseUser
      *
      * @var bool
      * @ORM\Column(type="boolean")
+     * @GRID\Column(title="Saisie")
      */
     private $saisie = false;
 
@@ -339,22 +370,9 @@ class User extends BaseUser
 
     /**
      *
-     * @var string
-     * @ORM\Column(type="string")
-     */
-    private $disponibilite;
-
-    /**
-     *
-     * @var string
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private $dispojourshoraires;
-
-    /**
-     *
-     * @var string[]
-     * @ORM\Column(type="simple_array", nullable=true)
+     * @var array
+     * @ORM\Column(type="array", nullable=true)
+     * @GRID\Column(title="Possibilité d'hebergement")
      */
     private $villehebergement = array();
 
@@ -399,6 +417,7 @@ class User extends BaseUser
      *
      * @var string
      * @ORM\Column(type="string")
+     * @GRID\Column(title="Nom")
      */
     private $name;
 
@@ -407,12 +426,13 @@ class User extends BaseUser
      *
      * @var string
      * @ORM\Column(type="string")
+     * @GRID\Column(title="Prénom")
      */
     private $prenom;
 
 
     /**
-     * List of events where the products is
+     * List of events where the user is
      * (Owning side).
      *
      * @var Evenement[]
@@ -420,6 +440,17 @@ class User extends BaseUser
      * @ORM\JoinTable(name="user_evenement")
      */
     private $evenements;
+
+    /**
+     * list des dispo de l'user
+     * (Owning side).
+     *
+     * @ORM\OneToMany(targetEntity="MyCalendarBundle\Entity\Event", mappedBy="user")
+     * @GRID\Column(field="event.start", type="datetime", title="Début d'une dispo  JJ-MM-AAAA hh:mm:ss", defaultOperator="lte")
+     * @GRID\Column(field="event.end", type="datetime", title="Fin d'une dispo  JJ-MM-AAAA hh:mm:ss", defaultOperator="gte")
+     * @GRID\Column(field="event.category.name", title="Disponibilité", filter="select",  selectFrom="values", values={"Non disponible"="Non disponible","Disponible"="Disponible"}, defaultOperator="eq")
+     */
+    private $event;
 
 
     /**
@@ -1585,56 +1616,6 @@ class User extends BaseUser
     }
 
     /**
-     * Set disponibilite
-     *
-     * @param string $disponibilite
-     *
-     * @return User
-     */
-    public function setDisponibilite($disponibilite)
-    {
-        $this->disponibilite = $disponibilite;
-
-        return $this;
-    }
-
-    /**
-     * Get disponibilite
-     *
-     * @return string
-     */
-    public function getDisponibilite()
-    {
-        return $this->disponibilite;
-    }
-
-    /**
-     * Set dispojourshoraires
-     *
-     * @param string $dispojourshoraires
-     *
-     * @return User
-     */
-    public function setDispojourshoraires($dispojourshoraires)
-    {
-        $this->dispojourshoraires = $dispojourshoraires;
-
-        return $this;
-    }
-
-    /**
-     * Get dispojourshoraires
-     *
-     * @return string
-     */
-    public function getDispojourshoraires()
-    {
-        return $this->dispojourshoraires;
-    }
-
-
-
-    /**
      * Set personneaprevenir
      *
      * @param string $personneaprevenir
@@ -1776,5 +1757,40 @@ class User extends BaseUser
     public function getTelport()
     {
         return $this->telport;
+    }
+    
+
+    /**
+     * Add event
+     *
+     * @param \MyCalendarBundle\Entity\Event $event
+     *
+     * @return User
+     */
+    public function addEvent(\MyCalendarBundle\Entity\Event $event)
+    {
+        $this->event[] = $event;
+
+        return $this;
+    }
+
+    /**
+     * Remove event
+     *
+     * @param \MyCalendarBundle\Entity\Event $event
+     */
+    public function removeEvent(\MyCalendarBundle\Entity\Event $event)
+    {
+        $this->event->removeElement($event);
+    }
+
+    /**
+     * Get event
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getEvent()
+    {
+        return $this->event;
     }
 }

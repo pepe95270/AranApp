@@ -1,0 +1,11 @@
+services:
+#    my_calendar.example:
+#        class: MyCalendarBundle\Example
+#        arguments: ["@service_id", "plain_value", %parameter%]
+    blade_tester_calendar.repository.event:
+        class: Your\CalendarBundle\Repository\EventRepository
+        factory_service: doctrine
+        factory_method: getRepository
+        arguments: [YourCalendarBundle:Event]
+        calls:
+          - [setUser]

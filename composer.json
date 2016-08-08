@@ -24,7 +24,10 @@
         "friendsofsymfony/user-bundle": "~2.0@dev",
         "javiereguiluz/easyadmin-bundle": "^1.14",
         "vich/uploader-bundle": "^1.1",
-        "egeloen/ckeditor-bundle": "^4.0"
+        "egeloen/ckeditor-bundle": "^4.0",
+        "apy/datagrid-bundle": "^2.2",
+        "friendsofsymfony/jsrouting-bundle": "^1.6",
+        "carlescliment/calendar-bundle": "2.5.2"
     },
     "require-dev": {
         "sensio/generator-bundle": "~3.0",

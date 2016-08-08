@@ -13,6 +13,7 @@ namespace FOS\UserBundle\Model;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use APY\DataGridBundle\Grid\Mapping as GRID;
 
 /**
  * Storage agnostic user object
@@ -46,6 +47,7 @@ abstract class User implements UserInterface, GroupableInterface
 
     /**
      * @var boolean
+     * @GRID\Column(title="Avis")
      */
     protected $enabled;
 

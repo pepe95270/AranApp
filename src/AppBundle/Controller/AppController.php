@@ -1,24 +1,26 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Pierre
- * Date: 27/06/2016
- * Time: 11:08
- */
+
 
 namespace AppBundle\Controller;
 
-
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use APY\DataGridBundle\Grid\Source\Entity;
 
-class AppController
+class AppController extends Controller
 {
     /**
-     * @Route("/sea")
+     * @Route("/rechercheavecdispo")
      */
-    public function showAction()
+    public function gridAction()
     {
-        return new Response('Under the sea');
+        $source = new Entity('AppBundle:User', 'avecdispo');
+
+        /* @var $grid \APY\DataGridBundle\Grid\Grid */
+        $grid = $this->get('grid');
+
+        $grid->setSource($source);
+
+        return $grid->getGridResponse('AppBundle::grid.html.twig');
     }
 }

@@ -20,6 +20,10 @@
       <parameter key="EasyAdminBundle">JavierEguiluz\Bundle\EasyAdminBundle\EasyAdminBundle</parameter>
       <parameter key="VichUploaderBundle">Vich\UploaderBundle\VichUploaderBundle</parameter>
       <parameter key="IvoryCKEditorBundle">Ivory\CKEditorBundle\IvoryCKEditorBundle</parameter>
+      <parameter key="APYDataGridBundle">APY\DataGridBundle\APYDataGridBundle</parameter>
+      <parameter key="FOSJsRoutingBundle">FOS\JsRoutingBundle\FOSJsRoutingBundle</parameter>
+      <parameter key="MyCalendarBundle">MyCalendarBundle\MyCalendarBundle</parameter>
+      <parameter key="BladeTesterCalendarBundle">BladeTester\CalendarBundle\BladeTesterCalendarBundle</parameter>
       <parameter key="DebugBundle">Symfony\Bundle\DebugBundle\DebugBundle</parameter>
       <parameter key="WebProfilerBundle">Symfony\Bundle\WebProfilerBundle\WebProfilerBundle</parameter>
       <parameter key="SensioDistributionBundle">Sensio\Bundle\DistributionBundle\SensioDistributionBundle</parameter>
@@ -307,6 +311,7 @@
     <parameter key="twig.form.resources" type="collection">
       <parameter>IvoryCKEditorBundle:Form:ckeditor_widget.html.twig</parameter>
       <parameter>form_div_layout.html.twig</parameter>
+      <parameter>bootstrap_3_layout.html.twig</parameter>
     </parameter>
     <parameter key="monolog.logger.class">Symfony\Bridge\Monolog\Logger</parameter>
     <parameter key="monolog.gelf.publisher.class">Gelf\MessagePublisher</parameter>
@@ -601,6 +606,18 @@
             </parameter>
           </parameter>
           <parameter type="collection">
+            <parameter key="label">Recherche avancé</parameter>
+            <parameter key="url">http://2.ip-164-132-99.eu/my_project/web/app_dev.php/recherchesansdispo</parameter>
+            <parameter key="icon">search</parameter>
+            <parameter key="target">_blank</parameter>
+          </parameter>
+          <parameter type="collection">
+            <parameter key="label">Recherche avec dispo</parameter>
+            <parameter key="url">http://2.ip-164-132-99.eu/my_project/web/app_dev.php/rechercheavecdispo</parameter>
+            <parameter key="icon">search</parameter>
+            <parameter key="target">_blank</parameter>
+          </parameter>
+          <parameter type="collection">
             <parameter key="label">Créé par Pierre Flamant</parameter>
           </parameter>
         </parameter>
@@ -741,13 +758,16 @@
           <parameter key="show" type="collection">
             <parameter key="fields" type="collection">
               <parameter type="collection">
-                <parameter key="property">enabled</parameter>
-                <parameter key="label">Avis</parameter>
+                <parameter key="property">evenements</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">poste</parameter>
+                <parameter key="label">Poste recherché</parameter>
               </parameter>
               <parameter type="collection">
                 <parameter key="property">image</parameter>
-                <parameter key="type">image</parameter>
                 <parameter key="label">Photo</parameter>
+                <parameter key="type">image</parameter>
                 <parameter key="base_path">/my_project/web/uploads/images/products/</parameter>
               </parameter>
               <parameter type="collection">
@@ -755,41 +775,190 @@
                 <parameter key="label">Nom</parameter>
               </parameter>
               <parameter type="collection">
+                <parameter key="property">nomjeunefille</parameter>
+                <parameter key="label">Nom de jeune fille</parameter>
+              </parameter>
+              <parameter type="collection">
                 <parameter key="property">prenom</parameter>
                 <parameter key="label">Prenom</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">adresse</parameter>
+                <parameter key="label">Adresse</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">codepostal</parameter>
+                <parameter key="label">Code Postal</parameter>
               </parameter>
               <parameter type="collection">
                 <parameter key="property">ville</parameter>
                 <parameter key="label">Ville</parameter>
               </parameter>
               <parameter type="collection">
+                <parameter key="property">email</parameter>
+                <parameter key="label">Adresse E-mail</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">telfixe</parameter>
+                <parameter key="label">Téléphone fixe</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">telport</parameter>
+                <parameter key="label">Téléphone portable</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">datenaissance</parameter>
+                <parameter key="label">Date de naissance</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">lieunaissance</parameter>
+                <parameter key="label">Lieux et département de naissance</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">secu</parameter>
+                <parameter key="label">Numéro de sécurité social</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">nationalite</parameter>
+                <parameter key="label">Nationalité</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">cartedesejour</parameter>
+                <parameter key="label">Numéro de carte de séjour</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">delivreepar</parameter>
+                <parameter key="label">Délivrée par la préfecture de</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">dateexpiration</parameter>
+                <parameter key="label">Date d'expiration</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">situation</parameter>
+                <parameter key="label">Situation Familiale</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">obligationemploi</parameter>
+                <parameter key="label">Bénéficiaire de l’obligation d’emploi selon l’article L. 5212-13 du Code du travail</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">tags</parameter>
+                <parameter key="label">Langues parlées (+niveau entre parenthèse)</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">niveauetude</parameter>
+                <parameter key="label">Niveau d'étude</parameter>
+              </parameter>
+              <parameter type="collection">
                 <parameter key="property">permis</parameter>
-                <parameter key="label">Permis</parameter>
+                <parameter key="label">Permis de conduire</parameter>
               </parameter>
               <parameter type="collection">
                 <parameter key="property">voiture</parameter>
                 <parameter key="label">Voiture</parameter>
               </parameter>
               <parameter type="collection">
-                <parameter key="property">createdAt</parameter>
-                <parameter key="format">j / M / Y</parameter>
-                <parameter key="label">Crée le</parameter>
+                <parameter key="property">dateobtention</parameter>
+                <parameter key="label">Date d'obtention</parameter>
               </parameter>
               <parameter type="collection">
-                <parameter key="property">name</parameter>
-                <parameter key="css_class">large</parameter>
+                <parameter key="property">prefecture</parameter>
+                <parameter key="label">Préfecture</parameter>
               </parameter>
               <parameter type="collection">
-                <parameter key="property">image</parameter>
-                <parameter key="type">image</parameter>
-                <parameter key="base_path">/my_project/web/uploads/images/products/</parameter>
+                <parameter key="property">taille</parameter>
+                <parameter key="label">Taille (cm)</parameter>
               </parameter>
-              <parameter>evenements</parameter>
-              <parameter>tags</parameter>
+              <parameter type="collection">
+                <parameter key="property">taillejupe</parameter>
+                <parameter key="label">Taille jupe/pantalon</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">tourpoitrine</parameter>
+                <parameter key="label">Tour de poitrine</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">tailleveste</parameter>
+                <parameter key="label">Taille de veste</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">pointure</parameter>
+                <parameter key="label">Pointure chaussures</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">couleurcheveux</parameter>
+                <parameter key="label">Couleur de cheveux</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">couleuryeux</parameter>
+                <parameter key="label">Couleur des yeux</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">experiencehote</parameter>
+                <parameter key="label">Expérience d'hôte(sse)</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">experiencehotedetail</parameter>
+                <parameter key="label">Si oui, laquelle?</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">bar</parameter>
+                <parameter key="label">Bar</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">animation</parameter>
+                <parameter key="label">Animation</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">micro</parameter>
+                <parameter key="label">Passage de micros</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">vente</parameter>
+                <parameter key="label">Vente</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">service</parameter>
+                <parameter key="label">Service assiette / plateau</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">distribution</parameter>
+                <parameter key="label">Distribution prospectus</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">traduction</parameter>
+                <parameter key="label">Traduction</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">saisie</parameter>
+                <parameter key="label">Saisie informatique</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">commentconnuagence</parameter>
+                <parameter key="label">Comment avez-vous connu notre agence ?</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">villehebergement</parameter>
+                <parameter key="label">Ville dans lesquelles vous pouvez être hébergée en France</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">personneaprevenir</parameter>
+                <parameter key="label">Personne à prévenir en cas d'accident</parameter>
+              </parameter>
+              <parameter type="collection">
+                <parameter key="property">adressetelaccident</parameter>
+                <parameter key="label">Adresse et téléphone</parameter>
+              </parameter>
             </parameter>
           </parameter>
           <parameter key="form" type="collection">
             <parameter key="fields" type="collection">
+              <parameter type="collection">
+                <parameter key="property">evenements</parameter>
+                <parameter key="css_class">col-sm-12</parameter>
+                <parameter key="type">easyadmin_autocomplete</parameter>
+              </parameter>
               <parameter type="collection">
                 <parameter key="property">poste</parameter>
                 <parameter key="label">Poste recherché</parameter>
@@ -1029,26 +1198,6 @@
                 <parameter key="css_class">col-sm-12</parameter>
               </parameter>
               <parameter type="collection">
-                <parameter key="property">disponibilite</parameter>
-                <parameter key="label">Disponibilité</parameter>
-                <parameter key="type">choice</parameter>
-                <parameter key="type_options" type="collection">
-                  <parameter key="choices" type="collection">
-                    <parameter key="Totale">Totale</parameter>
-                    <parameter key="Soirs">Soirs</parameter>
-                    <parameter key="Week-end">Week-end</parameter>
-                    <parameter key="Journée">Journée</parameter>
-                  </parameter>
-                </parameter>
-                <parameter key="css_class">col-sm-4</parameter>
-              </parameter>
-              <parameter type="collection">
-                <parameter key="property">dispojourshoraires</parameter>
-                <parameter key="label">En semaine (précisez les jours et horaires)</parameter>
-                <parameter key="type">Ivory\CKEditorBundle\Form\Type\CKEditorType</parameter>
-                <parameter key="css_class">col-sm-8</parameter>
-              </parameter>
-              <parameter type="collection">
                 <parameter key="property">villehebergement</parameter>
                 <parameter key="help">Cliquer sur "Ajouter un nouvel élément" pour ajouter une ville</parameter>
                 <parameter key="label">Ville dans lesquelles vous pouvez être hébergée en France</parameter>
@@ -1063,11 +1212,6 @@
                 <parameter key="property">adressetelaccident</parameter>
                 <parameter key="label">Adresse et téléphone</parameter>
                 <parameter key="css_class">col-sm-6</parameter>
-              </parameter>
-              <parameter type="collection">
-                <parameter key="property">evenements</parameter>
-                <parameter key="css_class">col-sm-12</parameter>
-                <parameter key="type">easyadmin_autocomplete</parameter>
               </parameter>
             </parameter>
           </parameter>
@@ -1112,6 +1256,51 @@
       </parameter>
     </parameter>
     <parameter key="vich_uploader.file_injector.class">Vich\UploaderBundle\Injector\FileInjector</parameter>
+    <parameter key="grid.twig_extension.class">APY\DataGridBundle\Twig\DataGridExtension</parameter>
+    <parameter key="grid.class">APY\DataGridBundle\Grid\Grid</parameter>
+    <parameter key="grid.manager.class">APY\DataGridBundle\Grid\GridManager</parameter>
+    <parameter key="grid.column.text.class">APY\DataGridBundle\Grid\Column\TextColumn</parameter>
+    <parameter key="grid.column.number.class">APY\DataGridBundle\Grid\Column\NumberColumn</parameter>
+    <parameter key="grid.column.boolean.class">APY\DataGridBundle\Grid\Column\BooleanColumn</parameter>
+    <parameter key="grid.column.datetime.class">APY\DataGridBundle\Grid\Column\DateTimeColumn</parameter>
+    <parameter key="grid.column.date.class">APY\DataGridBundle\Grid\Column\DateColumn</parameter>
+    <parameter key="grid.column.time.class">APY\DataGridBundle\Grid\Column\TimeColumn</parameter>
+    <parameter key="grid.column.array.class">APY\DataGridBundle\Grid\Column\ArrayColumn</parameter>
+    <parameter key="grid.column.blank.class">APY\DataGridBundle\Grid\Column\BlankColumn</parameter>
+    <parameter key="grid.column.rank.class">APY\DataGridBundle\Grid\Column\RankColumn</parameter>
+    <parameter key="grid.column.join.class">APY\DataGridBundle\Grid\Column\JoinColumn</parameter>
+    <parameter key="apy_data_grid.drivers" type="collection">
+      <parameter>annotation</parameter>
+      <parameter>yml</parameter>
+    </parameter>
+    <parameter key="apy_data_grid.limits" type="collection">
+      <parameter key="20">20</parameter>
+      <parameter key="50">50</parameter>
+      <parameter key="100">100</parameter>
+    </parameter>
+    <parameter key="apy_data_grid.theme">APYDataGridBundle::blocks.html.twig</parameter>
+    <parameter key="apy_data_grid.persistence">false</parameter>
+    <parameter key="apy_data_grid.no_data_message">No data</parameter>
+    <parameter key="apy_data_grid.no_result_message">No result</parameter>
+    <parameter key="apy_data_grid.actions_columns_size">-1</parameter>
+    <parameter key="apy_data_grid.actions_columns_title">Actions</parameter>
+    <parameter key="apy_data_grid.pagerfanta" type="collection">
+      <parameter key="enable">false</parameter>
+      <parameter key="view_class">Pagerfanta\View\DefaultView</parameter>
+      <parameter key="options" type="collection">
+        <parameter key="prev_message">«</parameter>
+        <parameter key="next_message">»</parameter>
+      </parameter>
+    </parameter>
+    <parameter key="fos_js_routing.extractor.class">FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractor</parameter>
+    <parameter key="fos_js_routing.controller.class">FOS\JsRoutingBundle\Controller\Controller</parameter>
+    <parameter key="fos_js_routing.cache_control" type="collection">
+      <parameter key="enabled">false</parameter>
+    </parameter>
+    <parameter key="blade_tester_calendar.form.type.event.class">BladeTester\CalendarBundle\Form\Type\EventFormType</parameter>
+    <parameter key="blade_tester_calendar.classes.event.entity">MyCalendarBundle\Entity\Event</parameter>
+    <parameter key="blade_tester_calendar.classes.category.entity">BladeTester\CalendarBundle\Entity\EventCategory</parameter>
+    <parameter key="blade_tester_calendar.form.type.category.class">BladeTester\CalendarBundle\Form\Type\EventCategoryFormType</parameter>
     <parameter key="web_profiler.controller.profiler.class">Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController</parameter>
     <parameter key="web_profiler.controller.router.class">Symfony\Bundle\WebProfilerBundle\Controller\RouterController</parameter>
     <parameter key="web_profiler.controller.exception.class">Symfony\Bundle\WebProfilerBundle\Controller\ExceptionController</parameter>
@@ -1467,6 +1656,7 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.ja.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ja.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.ja.yml</argument>
+            <argument>/var/www/html/my_project/vendor/apy/datagrid-bundle/Resources/translations/messages.ja.xliff</argument>
           </argument>
           <argument key="ca" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ca.xlf</argument>
@@ -1476,6 +1666,8 @@
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.ca.yml</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.ca.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.ca.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/translations/messages.ca.yml</argument>
+            <argument>/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/translations/validators.ca.yml</argument>
           </argument>
           <argument key="de" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.de.xlf</argument>
@@ -1486,6 +1678,7 @@
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.de.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.de.xlf</argument>
             <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.de.yml</argument>
+            <argument>/var/www/html/my_project/vendor/apy/datagrid-bundle/Resources/translations/messages.de.xliff</argument>
           </argument>
           <argument key="ro" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.ro.xlf</argument>
@@ -1510,6 +1703,7 @@
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.tr.yml</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.tr.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.tr.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/apy/datagrid-bundle/Resources/translations/messages.tr.xliff</argument>
           </argument>
           <argument key="sr_Latn" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sr_Latn.xlf</argument>
@@ -1546,6 +1740,9 @@
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.es.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.es.xlf</argument>
             <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.es.yml</argument>
+            <argument>/var/www/html/my_project/vendor/apy/datagrid-bundle/Resources/translations/messages.es.xliff</argument>
+            <argument>/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/translations/validators.es.yml</argument>
+            <argument>/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/translations/messages.es.yml</argument>
           </argument>
           <argument key="el" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.el.xlf</argument>
@@ -1560,6 +1757,7 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.pt_BR.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.pt_BR.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.pt_BR.yml</argument>
+            <argument>/var/www/html/my_project/vendor/apy/datagrid-bundle/Resources/translations/messages.pt_BR.xliff</argument>
           </argument>
           <argument key="hr" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.hr.xlf</argument>
@@ -1615,6 +1813,9 @@
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.fr.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.fr.xlf</argument>
             <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.fr.yml</argument>
+            <argument>/var/www/html/my_project/vendor/apy/datagrid-bundle/Resources/translations/messages.fr.xliff</argument>
+            <argument>/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/translations/messages.fr.yml</argument>
+            <argument>/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/translations/validators.fr.yml</argument>
           </argument>
           <argument key="pl" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.pl.xlf</argument>
@@ -1625,6 +1826,9 @@
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.pl.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.pl.xlf</argument>
             <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.pl.yml</argument>
+            <argument>/var/www/html/my_project/vendor/apy/datagrid-bundle/Resources/translations/messages.pl.xliff</argument>
+            <argument>/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/translations/validators.pl.yml</argument>
+            <argument>/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/translations/messages.pl.yml</argument>
           </argument>
           <argument key="da" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.da.xlf</argument>
@@ -1655,6 +1859,7 @@
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.ru.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.ru.xlf</argument>
             <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.ru.yml</argument>
+            <argument>/var/www/html/my_project/vendor/apy/datagrid-bundle/Resources/translations/messages.ru.xliff</argument>
           </argument>
           <argument key="bg" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.bg.xlf</argument>
@@ -1673,6 +1878,7 @@
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.it.yml</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.it.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.it.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/apy/datagrid-bundle/Resources/translations/messages.it.xliff</argument>
           </argument>
           <argument key="az" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.az.xlf</argument>
@@ -1687,6 +1893,7 @@
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.cs.yml</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.cs.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.cs.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/apy/datagrid-bundle/Resources/translations/messages.cs.xliff</argument>
           </argument>
           <argument key="sv" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.sv.xlf</argument>
@@ -1706,6 +1913,9 @@
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.en.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.en.xlf</argument>
             <argument>/var/www/html/my_project/vendor/vich/uploader-bundle/Resources/translations/VichUploaderBundle.en.yml</argument>
+            <argument>/var/www/html/my_project/vendor/apy/datagrid-bundle/Resources/translations/messages.en.xliff</argument>
+            <argument>/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/translations/validators.en.yml</argument>
+            <argument>/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/translations/messages.en.yml</argument>
           </argument>
           <argument key="mn" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.mn.xlf</argument>
@@ -1723,6 +1933,8 @@
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.eu.yml</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.eu.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.eu.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/translations/messages.eu.yml</argument>
+            <argument>/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/translations/validators.eu.yml</argument>
           </argument>
           <argument key="vi" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.vi.xlf</argument>
@@ -1762,6 +1974,7 @@
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Security/Core/Exception/../Resources/translations/security.sk.xlf</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/validators.sk.yml</argument>
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.sk.yml</argument>
+            <argument>/var/www/html/my_project/vendor/apy/datagrid-bundle/Resources/translations/messages.sk.xliff</argument>
           </argument>
           <argument key="gl" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.gl.xlf</argument>
@@ -1776,6 +1989,7 @@
             <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/translations/FOSUserBundle.nl.yml</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/EasyAdminBundle.nl.xlf</argument>
             <argument>/var/www/html/my_project/vendor/javiereguiluz/easyadmin-bundle/Resources/translations/messages.nl.xlf</argument>
+            <argument>/var/www/html/my_project/vendor/apy/datagrid-bundle/Resources/translations/messages.nl.xliff</argument>
           </argument>
           <argument key="zh_TW" type="collection">
             <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Validator/Resources/translations/validators.zh_TW.xlf</argument>
@@ -2117,6 +2331,8 @@
               <argument key="Vich\UploaderBundle\Form\Type\VichImageType">vich_uploader.form.type.image</argument>
               <argument key="ckeditor">ivory_ck_editor.form.type</argument>
               <argument key="Ivory\CKEditorBundle\Form\Type\CKEditorType">ivory_ck_editor.form.type</argument>
+              <argument key="calendar_event_category_type">form.type.bladetester_calendar_category</argument>
+              <argument key="BladeTester\CalendarBundle\Form\Type\CategoryType">form.type.bladetester_calendar_category</argument>
             </argument>
             <argument type="collection">
               <argument key="Symfony\Component\Form\Extension\Core\Type\FormType" type="collection">
@@ -2362,6 +2578,11 @@
         <argument type="collection">
           <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Component/Form/Resources/config/validation.xml</argument>
           <argument>/var/www/html/my_project/vendor/friendsofsymfony/user-bundle/Resources/config/validation.xml</argument>
+        </argument>
+      </call>
+      <call method="addYamlMappings">
+        <argument type="collection">
+          <argument>/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/config/validation.yml</argument>
         </argument>
       </call>
       <call method="enableAnnotationMapping">
@@ -2839,7 +3060,7 @@
         </argument>
         <argument type="service">
           <service class="Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider" public="false">
-            <argument>578f5bde5260a4.88696230</argument>
+            <argument>57a33a4936f885.74690168</argument>
           </service>
         </argument>
       </argument>
@@ -3000,7 +3221,40 @@
                 <call method="add">
                   <argument type="service">
                     <service class="Symfony\Component\HttpFoundation\RequestMatcher" public="false">
+                      <argument>^/calendar</argument>
+                    </service>
+                  </argument>
+                  <argument type="collection">
+                    <argument>ROLE_USER</argument>
+                  </argument>
+                  <argument>null</argument>
+                </call>
+                <call method="add">
+                  <argument type="service">
+                    <service class="Symfony\Component\HttpFoundation\RequestMatcher" public="false">
                       <argument>^/admin/</argument>
+                    </service>
+                  </argument>
+                  <argument type="collection">
+                    <argument>ROLE_ADMIN</argument>
+                  </argument>
+                  <argument>null</argument>
+                </call>
+                <call method="add">
+                  <argument type="service">
+                    <service class="Symfony\Component\HttpFoundation\RequestMatcher" public="false">
+                      <argument>^/rechercheavecdispo</argument>
+                    </service>
+                  </argument>
+                  <argument type="collection">
+                    <argument>ROLE_ADMIN</argument>
+                  </argument>
+                  <argument>null</argument>
+                </call>
+                <call method="add">
+                  <argument type="service">
+                    <service class="Symfony\Component\HttpFoundation\RequestMatcher" public="false">
+                      <argument>^/recherchesansdispo</argument>
                     </service>
                   </argument>
                   <argument type="collection">
@@ -3140,7 +3394,7 @@
         <argument type="service">
           <service class="Symfony\Component\Security\Http\Firewall\AnonymousAuthenticationListener" public="false">
             <argument type="service" id="security.token_storage"/>
-            <argument>578f5bde5260a4.88696230</argument>
+            <argument>57a33a4936f885.74690168</argument>
             <argument type="service" id="monolog.logger.security" on-invalid="null"/>
             <argument type="service" id="security.authentication.manager"/>
           </service>
@@ -3188,7 +3442,40 @@
                 <call method="add">
                   <argument type="service">
                     <service class="Symfony\Component\HttpFoundation\RequestMatcher" public="false">
+                      <argument>^/calendar</argument>
+                    </service>
+                  </argument>
+                  <argument type="collection">
+                    <argument>ROLE_USER</argument>
+                  </argument>
+                  <argument>null</argument>
+                </call>
+                <call method="add">
+                  <argument type="service">
+                    <service class="Symfony\Component\HttpFoundation\RequestMatcher" public="false">
                       <argument>^/admin/</argument>
+                    </service>
+                  </argument>
+                  <argument type="collection">
+                    <argument>ROLE_ADMIN</argument>
+                  </argument>
+                  <argument>null</argument>
+                </call>
+                <call method="add">
+                  <argument type="service">
+                    <service class="Symfony\Component\HttpFoundation\RequestMatcher" public="false">
+                      <argument>^/rechercheavecdispo</argument>
+                    </service>
+                  </argument>
+                  <argument type="collection">
+                    <argument>ROLE_ADMIN</argument>
+                  </argument>
+                  <argument>null</argument>
+                </call>
+                <call method="add">
+                  <argument type="service">
+                    <service class="Symfony\Component\HttpFoundation\RequestMatcher" public="false">
+                      <argument>^/recherchesansdispo</argument>
                     </service>
                   </argument>
                   <argument type="collection">
@@ -3240,6 +3527,7 @@
         <argument key="strict_variables">true</argument>
         <argument key="form_themes" type="collection">
           <argument>form_div_layout.html.twig</argument>
+          <argument>bootstrap_3_layout.html.twig</argument>
         </argument>
         <argument key="exception_controller">twig.controller.exception:showAction</argument>
         <argument key="autoescape">filename</argument>
@@ -3382,6 +3670,7 @@
                     <argument type="collection">
                       <argument>IvoryCKEditorBundle:Form:ckeditor_widget.html.twig</argument>
                       <argument>form_div_layout.html.twig</argument>
+                      <argument>bootstrap_3_layout.html.twig</argument>
                     </argument>
                   </service>
                 </argument>
@@ -3425,6 +3714,25 @@
       </call>
       <call method="addExtension">
         <argument type="service" id="ivory_ck_editor.twig_extension"/>
+      </call>
+      <call method="addExtension">
+        <argument type="service">
+          <service class="APY\DataGridBundle\Twig\DataGridExtension" public="false">
+            <tag name="twig.extension"/>
+            <argument type="service" id="router"/>
+            <argument>APYDataGridBundle::blocks.html.twig</argument>
+            <call method="setPagerFanta">
+              <argument type="collection">
+                <argument key="enable">false</argument>
+                <argument key="view_class">Pagerfanta\View\DefaultView</argument>
+                <argument key="options" type="collection">
+                  <argument key="prev_message">«</argument>
+                  <argument key="next_message">»</argument>
+                </argument>
+              </argument>
+            </call>
+          </service>
+        </argument>
       </call>
       <call method="addExtension">
         <argument type="service">
@@ -3673,6 +3981,8 @@
           <call method="setEntityNamespaces">
             <argument type="collection">
               <argument key="AppBundle">AppBundle\Entity</argument>
+              <argument key="MyCalendarBundle">MyCalendarBundle\Entity</argument>
+              <argument key="BladeTesterCalendarBundle">BladeTester\CalendarBundle\Entity</argument>
             </argument>
           </call>
           <call method="setMetadataCacheImpl">
@@ -3693,10 +4003,36 @@
                       <argument type="service" id="annotation_reader"/>
                       <argument type="collection">
                         <argument>/var/www/html/my_project/src/AppBundle/Entity</argument>
+                        <argument>/var/www/html/my_project/src/MyCalendarBundle/Entity</argument>
                       </argument>
                     </service>
                   </argument>
                   <argument>AppBundle\Entity</argument>
+                </call>
+                <call method="addDriver">
+                  <argument type="service">
+                    <service class="Doctrine\ORM\Mapping\Driver\AnnotationDriver" public="false">
+                      <argument type="service" id="annotation_reader"/>
+                      <argument type="collection">
+                        <argument>/var/www/html/my_project/src/AppBundle/Entity</argument>
+                        <argument>/var/www/html/my_project/src/MyCalendarBundle/Entity</argument>
+                      </argument>
+                    </service>
+                  </argument>
+                  <argument>MyCalendarBundle\Entity</argument>
+                </call>
+                <call method="addDriver">
+                  <argument type="service">
+                    <service class="Doctrine\ORM\Mapping\Driver\SimplifiedXmlDriver" public="false">
+                      <argument type="collection">
+                        <argument key="/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/config/doctrine">BladeTester\CalendarBundle\Entity</argument>
+                      </argument>
+                      <call method="setGlobalBasename">
+                        <argument>mapping</argument>
+                      </call>
+                    </service>
+                  </argument>
+                  <argument>BladeTester\CalendarBundle\Entity</argument>
                 </call>
                 <call method="addDriver">
                   <argument type="service">
@@ -4102,6 +4438,179 @@
       <tag name="twig.extension"/>
       <argument type="service" id="ivory_ck_editor.renderer"/>
     </service>
+    <service id="grid" class="APY\DataGridBundle\Grid\Grid" shared="false" scope="prototype">
+      <argument type="service" id="service_container"/>
+      <call method="addColumnExtension">
+        <argument type="service" id="grid.column.text"/>
+      </call>
+      <call method="addColumnExtension">
+        <argument type="service" id="grid.column.number"/>
+      </call>
+      <call method="addColumnExtension">
+        <argument type="service" id="grid.column.boolean"/>
+      </call>
+      <call method="addColumnExtension">
+        <argument type="service" id="grid.column.datetime"/>
+      </call>
+      <call method="addColumnExtension">
+        <argument type="service" id="grid.column.date"/>
+      </call>
+      <call method="addColumnExtension">
+        <argument type="service" id="grid.column.time"/>
+      </call>
+      <call method="addColumnExtension">
+        <argument type="service" id="grid.column.array"/>
+      </call>
+      <call method="addColumnExtension">
+        <argument type="service" id="grid.column.blank"/>
+      </call>
+      <call method="addColumnExtension">
+        <argument type="service" id="grid.column.rank"/>
+      </call>
+      <call method="addColumnExtension">
+        <argument type="service" id="grid.column.join"/>
+      </call>
+      <call method="setLimits">
+        <argument type="collection">
+          <argument key="20">20</argument>
+          <argument key="50">50</argument>
+          <argument key="100">100</argument>
+        </argument>
+      </call>
+      <call method="setPersistence">
+        <argument>false</argument>
+      </call>
+      <call method="setNoDataMessage">
+        <argument>No data</argument>
+      </call>
+      <call method="setNoResultMessage">
+        <argument>No result</argument>
+      </call>
+      <call method="setActionsColumnSize">
+        <argument>-1</argument>
+      </call>
+      <call method="setActionsColumnTitle">
+        <argument>Actions</argument>
+      </call>
+    </service>
+    <service id="grid.manager" class="APY\DataGridBundle\Grid\GridManager">
+      <argument type="service" id="service_container"/>
+    </service>
+    <service id="grid.metadata.driver.annotation" class="APY\DataGridBundle\Grid\Mapping\Driver\Annotation">
+      <argument type="service" id="annotation_reader"/>
+    </service>
+    <service id="grid.metadata.driver.yaml" class="APY\DataGridBundle\Grid\Mapping\Driver\Yaml">
+      <argument type="service" id="kernel"/>
+    </service>
+    <service id="grid.mapping.manager" class="APY\DataGridBundle\Grid\Mapping\Metadata\Manager">
+      <argument type="service" id="service_container"/>
+      <call method="setDrivers">
+        <argument type="collection">
+          <argument>annotation</argument>
+          <argument>yml</argument>
+        </argument>
+      </call>
+    </service>
+    <service id="grid.column.text" class="APY\DataGridBundle\Grid\Column\TextColumn" public="false">
+      <tag name="grid.column.extension"/>
+    </service>
+    <service id="grid.column.number" class="APY\DataGridBundle\Grid\Column\NumberColumn" public="false">
+      <tag name="grid.column.extension"/>
+    </service>
+    <service id="grid.column.boolean" class="APY\DataGridBundle\Grid\Column\BooleanColumn" public="false">
+      <tag name="grid.column.extension"/>
+    </service>
+    <service id="grid.column.datetime" class="APY\DataGridBundle\Grid\Column\DateTimeColumn" public="false">
+      <tag name="grid.column.extension"/>
+    </service>
+    <service id="grid.column.date" class="APY\DataGridBundle\Grid\Column\DateColumn" public="false">
+      <tag name="grid.column.extension"/>
+    </service>
+    <service id="grid.column.time" class="APY\DataGridBundle\Grid\Column\TimeColumn" public="false">
+      <tag name="grid.column.extension"/>
+    </service>
+    <service id="grid.column.array" class="APY\DataGridBundle\Grid\Column\ArrayColumn" public="false">
+      <tag name="grid.column.extension"/>
+    </service>
+    <service id="grid.column.blank" class="APY\DataGridBundle\Grid\Column\BlankColumn" public="false">
+      <tag name="grid.column.extension"/>
+    </service>
+    <service id="grid.column.rank" class="APY\DataGridBundle\Grid\Column\RankColumn" public="false">
+      <tag name="grid.column.extension"/>
+    </service>
+    <service id="grid.column.join" class="APY\DataGridBundle\Grid\Column\JoinColumn" public="false">
+      <tag name="grid.column.extension"/>
+    </service>
+    <service id="fos_js_routing.extractor" class="FOS\JsRoutingBundle\Extractor\ExposedRoutesExtractor">
+      <argument type="service" id="router"/>
+      <argument type="collection"/>
+      <argument>/var/www/html/my_project/app/cache/dev</argument>
+      <argument type="collection">
+        <argument key="FrameworkBundle">Symfony\Bundle\FrameworkBundle\FrameworkBundle</argument>
+        <argument key="SecurityBundle">Symfony\Bundle\SecurityBundle\SecurityBundle</argument>
+        <argument key="TwigBundle">Symfony\Bundle\TwigBundle\TwigBundle</argument>
+        <argument key="MonologBundle">Symfony\Bundle\MonologBundle\MonologBundle</argument>
+        <argument key="SwiftmailerBundle">Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle</argument>
+        <argument key="DoctrineBundle">Doctrine\Bundle\DoctrineBundle\DoctrineBundle</argument>
+        <argument key="SensioFrameworkExtraBundle">Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle</argument>
+        <argument key="AppBundle">AppBundle\AppBundle</argument>
+        <argument key="FOSUserBundle">FOS\UserBundle\FOSUserBundle</argument>
+        <argument key="EasyAdminBundle">JavierEguiluz\Bundle\EasyAdminBundle\EasyAdminBundle</argument>
+        <argument key="VichUploaderBundle">Vich\UploaderBundle\VichUploaderBundle</argument>
+        <argument key="IvoryCKEditorBundle">Ivory\CKEditorBundle\IvoryCKEditorBundle</argument>
+        <argument key="APYDataGridBundle">APY\DataGridBundle\APYDataGridBundle</argument>
+        <argument key="FOSJsRoutingBundle">FOS\JsRoutingBundle\FOSJsRoutingBundle</argument>
+        <argument key="MyCalendarBundle">MyCalendarBundle\MyCalendarBundle</argument>
+        <argument key="BladeTesterCalendarBundle">BladeTester\CalendarBundle\BladeTesterCalendarBundle</argument>
+        <argument key="DebugBundle">Symfony\Bundle\DebugBundle\DebugBundle</argument>
+        <argument key="WebProfilerBundle">Symfony\Bundle\WebProfilerBundle\WebProfilerBundle</argument>
+        <argument key="SensioDistributionBundle">Sensio\Bundle\DistributionBundle\SensioDistributionBundle</argument>
+        <argument key="SensioGeneratorBundle">Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle</argument>
+      </argument>
+    </service>
+    <service id="fos_js_routing.controller" class="FOS\JsRoutingBundle\Controller\Controller">
+      <argument type="service" id="fos_js_routing.serializer"/>
+      <argument type="service" id="fos_js_routing.extractor"/>
+      <argument type="collection">
+        <argument key="enabled">false</argument>
+      </argument>
+      <argument>true</argument>
+    </service>
+    <service id="fos_js_routing.serializer" class="Symfony\Component\Serializer\Serializer">
+      <argument type="collection">
+        <argument type="service">
+          <service class="Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer" public="false"/>
+        </argument>
+      </argument>
+      <argument type="collection">
+        <argument key="json" type="service">
+          <service class="Symfony\Component\Serializer\Encoder\JsonEncoder" public="false"/>
+        </argument>
+      </argument>
+    </service>
+    <service id="blade_tester_calendar.forms.event" class="BladeTester\CalendarBundle\Form\Type\EventFormType">
+      <argument>MyCalendarBundle\Entity\Event</argument>
+    </service>
+    <service id="blade_tester_calendar.forms.category" class="BladeTester\CalendarBundle\Form\Type\EventCategoryFormType">
+      <argument>BladeTester\CalendarBundle\Entity\EventCategory</argument>
+    </service>
+    <service id="blade_tester_calendar.calendar" class="BladeTester\CalendarBundle\Model\Calendar">
+      <argument type="service" id="doctrine.orm.default_entity_manager"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+      <argument>MyCalendarBundle\Entity\Event</argument>
+    </service>
+    <service id="blade_tester_calendar.event_category_manager" class="BladeTester\CalendarBundle\Model\EventCategoryManager">
+      <argument type="service" id="doctrine.orm.default_entity_manager"/>
+      <argument>BladeTester\CalendarBundle\Entity\EventCategory</argument>
+    </service>
+    <service id="blade_tester_calendar.forms.category_transformer" class="BladeTester\CalendarBundle\Form\DataTransformer\EventCategoryTransformer">
+      <argument type="service" id="blade_tester_calendar.event_category_manager"/>
+    </service>
+    <service id="form.type.bladetester_calendar_category" class="BladeTester\CalendarBundle\Form\Type\CategoryType">
+      <tag name="form.type" alias="calendar_event_category_type"/>
+      <argument type="service" id="blade_tester_calendar.event_category_manager"/>
+      <argument type="service" id="blade_tester_calendar.forms.category_transformer"/>
+    </service>
     <service id="data_collector.dump" class="Symfony\Component\HttpKernel\DataCollector\DumpDataCollector">
       <tag name="data_collector" id="dump" template="@Debug/Profiler/dump.html.twig" priority="240"/>
       <argument type="service" id="debug.stopwatch" on-invalid="ignore"/>
@@ -4425,6 +4934,10 @@
         <argument>Doctrine</argument>
       </call>
       <call method="addPath">
+        <argument>/var/www/html/my_project/src/AppBundle/Resources/views</argument>
+        <argument>App</argument>
+      </call>
+      <call method="addPath">
         <argument>/var/www/html/my_project/app/Resources/FOSUserBundle/views</argument>
         <argument>FOSUser</argument>
       </call>
@@ -4443,6 +4956,18 @@
       <call method="addPath">
         <argument>/var/www/html/my_project/vendor/egeloen/ckeditor-bundle/Resources/views</argument>
         <argument>IvoryCKEditor</argument>
+      </call>
+      <call method="addPath">
+        <argument>/var/www/html/my_project/vendor/apy/datagrid-bundle/Resources/views</argument>
+        <argument>APYDataGrid</argument>
+      </call>
+      <call method="addPath">
+        <argument>/var/www/html/my_project/src/MyCalendarBundle/Resources/views</argument>
+        <argument>MyCalendar</argument>
+      </call>
+      <call method="addPath">
+        <argument>/var/www/html/my_project/vendor/carlescliment/calendar-bundle/src/BladeTester/CalendarBundle/Resources/views</argument>
+        <argument>BladeTesterCalendar</argument>
       </call>
       <call method="addPath">
         <argument>/var/www/html/my_project/vendor/symfony/symfony/src/Symfony/Bundle/DebugBundle/Resources/views</argument>

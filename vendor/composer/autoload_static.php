@@ -70,6 +70,7 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
         'F' => 
         array (
             'FOS\\UserBundle\\' => 15,
+            'FOS\\JsRoutingBundle\\' => 20,
         ),
         'D' => 
         array (
@@ -78,6 +79,10 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
             'Doctrine\\Common\\' => 16,
             'Doctrine\\Bundle\\DoctrineCacheBundle\\' => 36,
             'Doctrine\\Bundle\\DoctrineBundle\\' => 31,
+        ),
+        'A' => 
+        array (
+            'APY\\DataGridBundle\\' => 19,
         ),
     );
 
@@ -198,6 +203,10 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
         array (
             0 => __DIR__ . '/..' . '/friendsofsymfony/user-bundle',
         ),
+        'FOS\\JsRoutingBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/friendsofsymfony/jsrouting-bundle',
+        ),
         'Doctrine\\Instantiator\\' => 
         array (
             0 => __DIR__ . '/..' . '/doctrine/instantiator/src/Doctrine/Instantiator',
@@ -217,6 +226,10 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
         'Doctrine\\Bundle\\DoctrineBundle\\' => 
         array (
             0 => __DIR__ . '/..' . '/doctrine/doctrine-bundle',
+        ),
+        'APY\\DataGridBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/apy/datagrid-bundle',
         ),
     );
 
@@ -265,6 +278,13 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
                 0 => __DIR__ . '/..' . '/jms/metadata/src',
             ),
         ),
+        'J' => 
+        array (
+            'JsonpCallbackValidator' => 
+            array (
+                0 => __DIR__ . '/..' . '/willdurand/jsonp-callback-validator/src',
+            ),
+        ),
         'D' => 
         array (
             'Doctrine\\ORM\\' => 
@@ -290,6 +310,20 @@ class ComposerStaticInit6e39e16d27915b3bf57b5ed4fe59f85a
             'Doctrine\\Common\\Annotations\\' => 
             array (
                 0 => __DIR__ . '/..' . '/doctrine/annotations/lib',
+            ),
+        ),
+        'B' => 
+        array (
+            'BladeTester\\CalendarBundle' => 
+            array (
+                0 => __DIR__ . '/..' . '/carlescliment/calendar-bundle/src',
+            ),
+        ),
+        'A' => 
+        array (
+            'ADesigns\\CalendarBundle' => 
+            array (
+                0 => __DIR__ . '/..' . '/adesigns/calendar-bundle',
             ),
         ),
     );

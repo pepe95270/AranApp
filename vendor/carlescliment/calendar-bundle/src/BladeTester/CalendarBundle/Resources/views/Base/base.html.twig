@@ -1,0 +1,48 @@
+<html>
+    <head>
+        <link rel="icon" href="{{ asset('favicon.ico') }}" />
+        <link rel="stylesheet" href="{{ asset('bundles/bladetestercalendar/css/calendar-header.css') }}">
+        <link rel="stylesheet" href="{{ asset('bundles/bladetestercalendar/css/calendar.css') }}">
+        <title>Mes disponibilités</title>
+    </head>
+    <body>
+            <div>
+                {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+                    {{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }} |
+                    <a href="{{ path('fos_user_security_logout') }}">
+                        {{ 'layout.logout'|trans({}, 'FOSUserBundle') }}
+                    </a>
+                {% else %}
+                    <a href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a>
+                {% endif %}
+            </div>
+            <div>
+                <a href="{{ path('fos_user_profile_show') }}">
+                    Retourner au profil
+                </a>
+            </div>
+            <div class="app">
+                <header class="main-header">
+                    {% block header %}
+                    {% endblock %}
+                </header>
+
+
+                <div class="main-body">
+                    {% block body %}
+                    {% endblock %}
+                </div>
+
+                <footer class="main-footer">
+                    {% block footer %}
+                    {% endblock %}
+                </footer>
+            </div>
+
+    {% block javascripts %}
+        <script type="text/javascript" src="{{ asset('bundles/bladetestercalendar/js/jquery-1.9.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('bundles/bladetestercalendar/js/calendar.js') }}"></script>
+    {% endblock %}
+    </body>
+</html>
+

@@ -16,4 +16,6 @@ easy_admin:
               children:
                   - { entity: 'User', icon: 'female', label: 'Hôtesse', params: { sortField: 'createdAt' }, default: true }
                   - { entity: 'Evenement', icon: 'calendar', label: 'Événement' }
+            - { label: 'Recherche avancé', url: 'http://2.ip-164-132-99.eu/my_project/web/app_dev.php/recherchesansdispo', icon: 'search', target: '_blank' }
+            - { label: 'Recherche avec dispo', url: 'http://2.ip-164-132-99.eu/my_project/web/app_dev.php/rechercheavecdispo', icon: 'search', target: '_blank' }
             - { label: 'Créé par Pierre Flamant' }

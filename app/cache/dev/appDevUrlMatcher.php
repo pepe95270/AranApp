@@ -105,9 +105,26 @@ class appDevUrlMatcher extends Symfony\Bundle\FrameworkBundle\Routing\Redirectab
 
         }
 
-        // app_app_show
-        if ($pathinfo === '/sea') {
-            return array (  '_controller' => 'AppBundle\\Controller\\AppController::showAction',  '_route' => 'app_app_show',);
+        // mycalendar_default_index
+        if (rtrim($pathinfo, '/') === '') {
+            if (substr($pathinfo, -1) !== '/') {
+                return $this->redirect($pathinfo.'/', 'mycalendar_default_index');
+            }
+
+            return array (  '_controller' => 'MyCalendarBundle\\Controller\\DefaultController::indexAction',  '_route' => 'mycalendar_default_index',);
+        }
+
+        if (0 === strpos($pathinfo, '/recherche')) {
+            // app_app_grid
+            if ($pathinfo === '/rechercheavecdispo') {
+                return array (  '_controller' => 'AppBundle\\Controller\\AppController::gridAction',  '_route' => 'app_app_grid',);
+            }
+
+            // app_default_grid
+            if ($pathinfo === '/recherchesansdispo') {
+                return array (  '_controller' => 'AppBundle\\Controller\\DefaultController::gridAction',  '_route' => 'app_default_grid',);
+            }
+
         }
 
         if (0 === strpos($pathinfo, '/log')) {
@@ -313,6 +330,105 @@ class appDevUrlMatcher extends Symfony\Bundle\FrameworkBundle\Routing\Redirectab
                 }
 
                 return array (  '_controller' => 'JavierEguiluz\\Bundle\\EasyAdminBundle\\Controller\\AdminController::indexAction',  '_route' => 'admin',);
+            }
+
+        }
+
+        // fos_js_routing_js
+        if (0 === strpos($pathinfo, '/js/routing') && preg_match('#^/js/routing(?:\\.(?P<_format>js|json))?$#s', $pathinfo, $matches)) {
+            return $this->mergeDefaults(array_replace($matches, array('_route' => 'fos_js_routing_js')), array (  '_controller' => 'fos_js_routing.controller:indexAction',  '_format' => 'js',));
+        }
+
+        if (0 === strpos($pathinfo, '/calendar')) {
+            // calendar_index
+            if ($pathinfo === '/calendar') {
+                return array (  '_controller' => 'BladeTester\\CalendarBundle\\Controller\\EventController::indexAction',  '_route' => 'calendar_index',);
+            }
+
+            // calendar_event_list
+            if ($pathinfo === '/calendar/list') {
+                return array (  '_controller' => 'BladeTester\\CalendarBundle\\Controller\\EventController::listAction',  '_route' => 'calendar_event_list',);
+            }
+
+            if (0 === strpos($pathinfo, '/calendar/by_')) {
+                // calendar_event_list_by_day
+                if (0 === strpos($pathinfo, '/calendar/by_day') && preg_match('#^/calendar/by_day/(?P<year>[^/]++)/(?P<month>[^/]++)/(?P<day>[^/]++)$#s', $pathinfo, $matches)) {
+                    return $this->mergeDefaults(array_replace($matches, array('_route' => 'calendar_event_list_by_day')), array (  '_controller' => 'BladeTester\\CalendarBundle\\Controller\\EventController::listByDayAction',));
+                }
+
+                // calendar_event_list_by_week
+                if (0 === strpos($pathinfo, '/calendar/by_week') && preg_match('#^/calendar/by_week/(?P<year>[^/]++)/(?P<month>[^/]++)/(?P<day>[^/]++)$#s', $pathinfo, $matches)) {
+                    return $this->mergeDefaults(array_replace($matches, array('_route' => 'calendar_event_list_by_week')), array (  '_controller' => 'BladeTester\\CalendarBundle\\Controller\\EventController::listByWeekAction',));
+                }
+
+                // calendar_event_list_by_month
+                if (0 === strpos($pathinfo, '/calendar/by_month') && preg_match('#^/calendar/by_month/(?P<year>[^/]++)/(?P<month>[^/]++)$#s', $pathinfo, $matches)) {
+                    return $this->mergeDefaults(array_replace($matches, array('_route' => 'calendar_event_list_by_month')), array (  '_controller' => 'BladeTester\\CalendarBundle\\Controller\\EventController::listByMonthAction',));
+                }
+
+            }
+
+            // calendar_event_add
+            if ($pathinfo === '/calendar/add') {
+                return array (  '_controller' => 'BladeTester\\CalendarBundle\\Controller\\EventController::addAction',  '_route' => 'calendar_event_add',);
+            }
+
+            // calendar_event_edit
+            if (preg_match('#^/calendar/(?P<id>[^/]++)/edit$#s', $pathinfo, $matches)) {
+                return $this->mergeDefaults(array_replace($matches, array('_route' => 'calendar_event_edit')), array (  '_controller' => 'BladeTester\\CalendarBundle\\Controller\\EventController::editAction',));
+            }
+
+            // calendar_event_delete
+            if (preg_match('#^/calendar/(?P<id>[^/]++)/delete$#s', $pathinfo, $matches)) {
+                return $this->mergeDefaults(array_replace($matches, array('_route' => 'calendar_event_delete')), array (  '_controller' => 'BladeTester\\CalendarBundle\\Controller\\EventController::deleteAction',));
+            }
+
+            // calendar_mini_calendar
+            if (0 === strpos($pathinfo, '/calendar/mini') && preg_match('#^/calendar/mini/(?P<year>[^/]++)/(?P<month>[^/]++)$#s', $pathinfo, $matches)) {
+                return $this->mergeDefaults(array_replace($matches, array('_route' => 'calendar_mini_calendar')), array (  '_controller' => 'BladeTester\\CalendarBundle\\Controller\\CalendarController::showMiniAction',));
+            }
+
+            if (0 === strpos($pathinfo, '/calendar/category')) {
+                // calendar_category_edit
+                if (preg_match('#^/calendar/category/(?P<id>[^/]++)/edit$#s', $pathinfo, $matches)) {
+                    return $this->mergeDefaults(array_replace($matches, array('_route' => 'calendar_category_edit')), array (  '_controller' => 'BladeTester\\CalendarBundle\\Controller\\CategoryController::editAction',));
+                }
+
+                // calendar_category_delete
+                if (preg_match('#^/calendar/category/(?P<id>[^/]++)/delete$#s', $pathinfo, $matches)) {
+                    return $this->mergeDefaults(array_replace($matches, array('_route' => 'calendar_category_delete')), array (  '_controller' => 'BladeTester\\CalendarBundle\\Controller\\CategoryController::deleteAction',));
+                }
+
+                // calendar_category_add
+                if ($pathinfo === '/calendar/category/add') {
+                    return array (  '_controller' => 'BladeTester\\CalendarBundle\\Controller\\CategoryController::addAction',  '_route' => 'calendar_category_add',);
+                }
+
+            }
+
+            if (0 === strpos($pathinfo, '/calendar/settings')) {
+                // calendar_settings_update
+                if ($pathinfo === '/calendar/settings/update') {
+                    if ($this->context->getMethod() != 'POST') {
+                        $allow[] = 'POST';
+                        goto not_calendar_settings_update;
+                    }
+
+                    return array (  '_controller' => 'BladeTester\\CalendarBundle\\Controller\\SettingsController::updateAction',  '_route' => 'calendar_settings_update',);
+                }
+                not_calendar_settings_update:
+
+                // calendar_settings
+                if ($pathinfo === '/calendar/settings') {
+                    if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
+                        $allow = array_merge($allow, array('GET', 'HEAD'));
+                        goto not_calendar_settings;
+                    }
+
+                    return array (  '_controller' => 'BladeTester\\CalendarBundle\\Controller\\SettingsController::indexAction',  '_route' => 'calendar_settings',);
+                }
+                not_calendar_settings:
+
             }
 
         }

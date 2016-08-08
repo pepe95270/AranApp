@@ -1,6 +1,7 @@
 {% trans_default_domain 'FOSUserBundle' %}
-<a href="{{ path('fos_user_profile_edit') }}">Editer votre profil</a>
-<div class="fos_user_user_show">
+<div class="fos_user_user_show col-md-10">
+    <a href="{{ path('fos_user_profile_edit') }}" class="btn btn-default">Editer votre profil</a>
+    <a href="{{ path('calendar_index') }}" class="btn btn-default">Voir/Editer mes disponibilités</a>
     <div style="float: right;"> <img src="http://2.ip-164-132-99.eu/my_project/web/uploads/images/products/{{ user.image }}" height="auto" width="300"> </div>
     <p><strong>{{ 'profile.show.username'|trans }}:</strong> {{ user.username }}</p>
     <p><strong>{{ 'profile.show.email'|trans }}:</strong> {{ user.email }}</p>
@@ -49,8 +50,6 @@
     <p><strong>Traduction:</strong> {% if user.traduction=="1" %}Oui{% else %}Non{% endif %}</p>
     <p><strong>Saisie informatique:</strong> {% if user.saisie=="1" %}Oui{% else %}Non{% endif %}</p>
     <p><strong>Comment avez-vous connu notre agence ?:</strong> {{ user.commentconnuagence }}</p>
-    <p><strong>Disponibilité:</strong> {{ user.disponibilite }}</p>
-    <p><strong>En semaine (précisez les jours et horaires):</strong> {{ user.dispojourshoraires }}</p>
     <p><strong>Ville dans lesquelles vous pouvez être hébergée en France:</strong></p>
     {% for desc in user.villehebergement %}
         <p><strong>&nbsp&nbsp&nbsp-</strong> {{ desc }}</p>
